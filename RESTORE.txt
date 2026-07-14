@@ -1,0 +1,21 @@
+Intermediate backup of Vestnik Mecenata
+Updated: 2026-07-14 (evening) MSK
+Source: /Users/dmitry/vestnik-for-grok
+
+State: after patrons №1–25, user portrait/legacy photo replacements,
+Christina salon + IISc cropped without underlay, other legacy underlays
+where needed, AGENTS.md rules.
+
+--- BACKUPS POLICY ---
+1) FIRST / IMMUTABLE (NEVER delete, NEVER overwrite):
+   /Users/dmitry/vestnik-for-grok-baseline-github-2026-07-13
+
+2) THIS intermediate restore point:
+   /Users/dmitry/vestnik-for-grok-baseline-after-patrons-1-25-2026-07-14
+
+To restore THIS version:
+  rsync -a --delete --exclude node_modules \
+    "/Users/dmitry/vestnik-for-grok-baseline-after-patrons-1-25-2026-07-14/" \
+    "/Users/dmitry/vestnik-for-grok/"
+
+NEVER delete the first baseline.

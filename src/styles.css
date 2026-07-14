@@ -1,0 +1,180 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-gold: var(--gold);
+  --color-gold-soft: var(--gold-soft);
+  --color-bordo: var(--bordo);
+  --color-bordo-deep: var(--bordo-deep);
+  --color-ink: var(--ink);
+  --color-cream: var(--cream);
+  --color-ivory: var(--ivory);
+  --font-display: var(--font-display);
+  --font-serif: var(--font-serif);
+  --font-sans: var(--font-sans);
+}
+
+@font-face {
+  font-family: "Cormorant";
+  src: url("https://fonts.gstatic.com/s/cormorantgaramond/v16/co3bmX5slCNuHLi8bLeY9MK7whWMhyjornFLsS6V7w.woff2") format("woff2");
+  font-weight: 400 700;
+  font-display: swap;
+}
+
+:root {
+  --radius: 0.5rem;
+
+  /* Brand palette — музейный модерн */
+  --bordo-deep: oklch(0.28 0.09 25);     /* #3d1419 */
+  --bordo: oklch(0.36 0.12 25);          /* #5b1a1f */
+  --gold: oklch(0.74 0.10 80);           /* #c9a961 */
+  --gold-soft: oklch(0.82 0.07 82);      /* #d8c391 */
+  --ink: oklch(0.18 0.02 50);            /* #1c1814 */
+  --cream: oklch(0.96 0.018 85);         /* #f5efe3 */
+  --ivory: oklch(0.985 0.008 90);        /* #fbf8f1 */
+
+  /* Semantic — светлая тема (кремовая) */
+  --background: var(--ivory);
+  --foreground: var(--ink);
+  --card: oklch(1 0 0);
+  --card-foreground: var(--ink);
+  --popover: var(--ivory);
+  --popover-foreground: var(--ink);
+  --primary: var(--bordo);
+  --primary-foreground: var(--ivory);
+  --secondary: var(--cream);
+  --secondary-foreground: var(--ink);
+  --muted: oklch(0.93 0.012 80);
+  --muted-foreground: oklch(0.42 0.02 50);
+  --accent: var(--gold);
+  --accent-foreground: var(--bordo-deep);
+  --destructive: oklch(0.55 0.20 25);
+  --destructive-foreground: var(--ivory);
+  --border: oklch(0.86 0.02 75);
+  --input: oklch(0.86 0.02 75);
+  --ring: var(--gold);
+
+  --font-display: "Cormorant", "Cormorant Garamond", "Playfair Display", Georgia, serif;
+  --font-serif: "Cormorant", Georgia, serif;
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+
+  /* Gradients & shadows */
+  --gradient-bordo: linear-gradient(180deg, oklch(0.32 0.10 25), oklch(0.22 0.08 25));
+  --gradient-gold: linear-gradient(135deg, var(--gold), var(--gold-soft));
+  --shadow-elegant: 0 20px 60px -20px oklch(0.18 0.05 25 / 0.35);
+  --shadow-gold: 0 0 0 1px oklch(0.74 0.10 80 / 0.4), 0 8px 24px -8px oklch(0.74 0.10 80 / 0.3);
+}
+
+.dark {
+  --background: var(--ink);
+  --foreground: var(--ivory);
+  --card: oklch(0.22 0.02 50);
+  --card-foreground: var(--ivory);
+  --popover: oklch(0.22 0.02 50);
+  --popover-foreground: var(--ivory);
+  --primary: var(--gold);
+  --primary-foreground: var(--ink);
+  --secondary: oklch(0.26 0.04 30);
+  --secondary-foreground: var(--ivory);
+  --muted: oklch(0.24 0.02 40);
+  --muted-foreground: oklch(0.72 0.02 75);
+  --accent: var(--gold);
+  --accent-foreground: var(--ink);
+  --border: oklch(0.32 0.03 40);
+  --input: oklch(0.32 0.03 40);
+  --ring: var(--gold);
+}
+
+@layer base {
+  * { border-color: var(--color-border); }
+  html { scroll-behavior: smooth; }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv01";
+  }
+  h1, h2, h3, h4, .font-display {
+    font-family: var(--font-display);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+}
+
+@layer utilities {
+  .paper-bg {
+    background-color: var(--color-ivory);
+    background-image:
+      radial-gradient(at 20% 10%, oklch(0.74 0.10 80 / 0.06) 0, transparent 50%),
+      radial-gradient(at 80% 90%, oklch(0.36 0.12 25 / 0.05) 0, transparent 50%);
+  }
+  .ink-bg {
+    background: linear-gradient(180deg, oklch(0.18 0.03 30), oklch(0.14 0.02 30));
+  }
+  .gold-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--color-gold), transparent);
+  }
+  .text-gold { color: var(--color-gold); }
+  .bg-gold { background: var(--color-gold); }
+  .text-bordo { color: var(--color-bordo); }
+  .bg-bordo { background: var(--color-bordo); }
+  .text-cream { color: var(--color-cream); }
+  .grain::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.12;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.55'/></svg>");
+  }
+  .ornament-frame {
+    position: relative;
+  }
+  .ornament-frame::before, .ornament-frame::after {
+    content: "❖";
+    color: var(--color-gold);
+    font-size: 0.85rem;
+    display: inline-block;
+    margin: 0 0.75rem;
+    vertical-align: middle;
+    opacity: 0.8;
+  }
+  .animate-fade-in { animation: fadeIn 0.6s ease-out both; }
+  .animate-fade-up { animation: fadeUp 0.7s ease-out both; }
+  .animate-ken-burns { animation: kenBurns 14s ease-in-out infinite alternate; }
+}
+
+@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(16px) } to { opacity: 1; transform: none } }
+@keyframes kenBurns {
+  from { transform: scale(1.05) translate(0, 0); }
+  to   { transform: scale(1.15) translate(-1.5%, -1%); }
+}
