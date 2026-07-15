@@ -48,14 +48,16 @@
 | `city` | как в GEO / `CITY_COORDS` | `Мумбаи`, `Баку`, `Стамбул` |
 | `mapX` / `mapY` | equirectangular: `x=(lon+180)/360*100`, `y=(90-lat)/180*100` | как у соседних городов в GEO |
 
-### 3. Медиа (локально в `public/`)
+### 3. Медиа (локально — **два каталога**)
 
-| Тип | Путь | Пример |
-|-----|------|--------|
-| Портрет | `public/portraits/{slug}.jpg` | `public/portraits/jamsetji-tata.jpg` |
-| Наследие | `public/legacy/{legacy-slug}.jpg` | `public/legacy/iisc-bangalore.jpg` |
+| Тип | Путь `public/` (dev / fallback) | Путь `src/assets/` (**обязательно для деплоя**) |
+|-----|----------------------------------|--------------------------------------------------|
+| Портрет | `public/portraits/{slug}.jpg` | `src/assets/portraits/{slug}.jpg` |
+| Наследие | `public/legacy/{legacy-slug}.jpg` | `src/assets/legacy-photos/{legacy-slug}.jpg` |
 
-- Скачивать картинки на диск (не только hotlink), чтобы GitHub Pages / preview работали офлайн.
+- **Почему два пути:** на задеплоенном Lovable/Cloudflare пути `/portraits/*` и `/legacy/*` часто **не отдаются** как статика (приходит HTML-оболочка SPA) — картинки «ломаются». UI резолвит их через `src/lib/media.ts` (`import.meta.glob` → `/assets/*-hash.jpg`). Без копии в `src/assets/...` на проде фото не будет.
+- При добавлении/замене фото: **положить файл в оба места** (одинаковое имя). Можно `cp public/portraits/X.jpg src/assets/portraits/X.jpg`.
+- **Hotlink (wikimedia/… URL) запрещён** в `portrait` / `image` для PERSONS и LEGACY — только локальные пути.
 - В данных: `portrait: "/portraits/..."`, `image: "/legacy/..."`.
 - Обновлять `portraitCaption` (Лица) / `imageCredit` (Наследие) под источник.
 - **Источник по умолчанию:** если точный автор/лицензия **неизвестны или не указаны** (в т.ч. фото от пользователя без подписи, миниатюра из поиска, смена файла без credit) — **всегда** писать **Wikimedia Commons**, а не «Архив редакции», «Editorial archive» и т.п.  
@@ -209,6 +211,16 @@
 - TanStack Start / Router, React, Vite
 - Контент: `src/data/content*.ts`
 - Превью: локальный Vite; деплой отдельно (GitHub Pages и т.п.)
+
+## GitHub / экспорт (жёсткое правило)
+
+Репозиторий: `https://github.com/9745828-cloud/vestnik-for-grok` (ветка `main`).
+
+- **По умолчанию работать только локально** в `/Users/dmitry/vestnik-for-grok`.
+- **Запрещено** автоматически после правок делать `git push`, force-push, `gh` upload, MCP `push_files` / `create_or_update_file` и любой другой выгрузку в GitHub.
+- **Выгрузка в GitHub — только по явной просьбе пользователя** («залей на GitHub», «экспортируй», «запушь», «обнови репозиторий» и т.п.).
+- Локальный `git commit` — тоже только если пользователь просит зафиксировать/закоммитить, либо как шаг внутри явного запроса на выгрузку.
+- Промежуточные локальные бэкапы (папка baseline) **не** равны обновлению GitHub.
 
 ## Локальные бэкапы (жёсткое правило)
 

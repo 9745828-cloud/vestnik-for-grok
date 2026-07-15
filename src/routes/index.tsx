@@ -21,6 +21,7 @@ import alchevskayaVideo from "@/assets/videos/alchevskaya.mp4.asset.json";
 import carnegieVideo from "@/assets/videos/carnegie.mp4.asset.json";
 import nobelVideo from "@/assets/videos/nobel.mp4.asset.json";
 import galimzyanovVideo from "@/assets/videos/galimzyanov.mp4.asset.json";
+import { resolvePortrait } from "@/lib/media";
 
 const LIVING_FACES = [
   { slug: "maecenas", video: maecenasVideo.url },
@@ -181,7 +182,7 @@ function Home() {
                   className="block w-full aspect-[4/5] bg-black relative overflow-hidden cursor-pointer group/video"
                 >
                   <img
-                    src={person.portrait}
+                    src={resolvePortrait(person.portrait)}
                     alt={person.name}
                     className="absolute inset-0 w-full h-full object-cover object-top"
                   />

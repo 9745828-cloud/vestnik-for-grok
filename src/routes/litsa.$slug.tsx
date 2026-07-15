@@ -4,6 +4,7 @@ import { PERSONS as STATIC_PERSONS } from "@/data/content";
 import { useLitsa } from "@/lib/wp/hooks";
 import { useT } from "@/i18n/lang";
 import { ArrowLeft, Award, MapPin, Sparkles, Medal } from "lucide-react";
+import { resolvePortrait } from "@/lib/media";
 
 const INITIAL_BG = ["#5B1A1F", "#3d1419", "#7a4f1c", "#2c4a3d", "#43344f", "#5b3a1f", "#1f3b4a", "#4a1f2c"];
 
@@ -49,7 +50,7 @@ function PersonDetail() {
             <div className="aspect-[4/5] relative rounded-sm overflow-hidden border-2 border-gold/50 shadow-[0_30px_60px_-20px_oklch(0_0_0/0.6)]" style={{ background: bg }}>
               {p.portrait ? (
                 <img
-                  src={p.portrait}
+                  src={resolvePortrait(p.portrait)}
                   alt={t(`Портрет: ${p.name}`, `Portrait: ${p.name}`)}
                   className="absolute inset-0 h-full w-full object-cover"
                   style={{ filter: "sepia(0.15) saturate(0.95) contrast(1.04)" }}

@@ -8,6 +8,7 @@ import { useT } from "@/i18n/lang";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { Award, MapPin, Sparkles, Medal } from "lucide-react";
 import { focusElementById, getFocusTarget } from "@/lib/focus-target";
+import { resolvePortrait } from "@/lib/media";
 
 export const Route = createFileRoute("/litsa")({
   head: () => ({
@@ -89,7 +90,7 @@ function Litsa() {
                 <div className="aspect-[4/5] relative overflow-hidden flex-shrink-0" style={{ background: INITIAL_BG[i % INITIAL_BG.length] }}>
                   {p.portrait ? (
                     <img
-                      src={p.portrait}
+                      src={resolvePortrait(p.portrait)}
                       alt={t(`Портрет: ${p.name}`, `Portrait: ${p.name}`)}
                       loading="eager"
                       decoding="async"
@@ -150,7 +151,7 @@ function Litsa() {
                 <div>
                 <div className="aspect-[4/5] relative rounded-sm overflow-hidden border-2 border-gold/50" style={{ background: INITIAL_BG[openIdx % INITIAL_BG.length] }}>
                   {openPerson.portrait ? (
-                    <img src={openPerson.portrait} alt={openPerson.name} decoding="async" className={`absolute inset-0 h-full w-full ${openPerson.portraitFit === "contain" ? "object-contain" : "object-cover"}`} style={{ objectPosition: openPerson.portraitPosition ?? "center" }} onError={(e) => { const img = e.currentTarget as HTMLImageElement; img.style.display='none'; const fb=img.parentElement?.querySelector('[data-fb]') as HTMLElement|null; if(fb) fb.style.display='grid'; }} />
+                    <img src={resolvePortrait(openPerson.portrait)} alt={openPerson.name} decoding="async" className={`absolute inset-0 h-full w-full ${openPerson.portraitFit === "contain" ? "object-contain" : "object-cover"}`} style={{ objectPosition: openPerson.portraitPosition ?? "center" }} onError={(e) => { const img = e.currentTarget as HTMLImageElement; img.style.display='none'; const fb=img.parentElement?.querySelector('[data-fb]') as HTMLElement|null; if(fb) fb.style.display='grid'; }} />
                   ) : null}
                   <div data-fb className="absolute inset-0 place-items-center text-center" style={{ display: openPerson.portrait ? 'none' : 'grid' }}>
                     <div>

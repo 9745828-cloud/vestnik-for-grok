@@ -8,6 +8,7 @@ import { useLegacyCategories } from "@/data/content.localized";
 import { useT } from "@/i18n/lang";
 import { useNasledie } from "@/lib/wp/hooks";
 import { focusElementById, getFocusTarget } from "@/lib/focus-target";
+import { resolveLegacyImage } from "@/lib/media";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { Building2, GraduationCap, HeartPulse, Library, Music, Palette, Microscope, School, Landmark } from "lucide-react";
 
@@ -183,7 +184,7 @@ function Nasledie() {
                   <div className="aspect-[16/9] relative overflow-hidden flex-shrink-0" style={{ background: it.imageHue }}>
                     {it.image ? (
                       <img
-                        src={it.image}
+                        src={resolveLegacyImage(it.image)}
                         alt={it.title}
                         loading="eager"
                         decoding="async"
@@ -248,7 +249,7 @@ function Nasledie() {
                 <div className="aspect-[4/3] relative rounded-sm overflow-hidden border-2 border-gold/50" style={{ background: openItem.imageHue }}>
                   {openItem.image ? (
                     <img
-                      src={openItem.image}
+                      src={resolveLegacyImage(openItem.image)}
                       alt={openItem.title}
                       className={`w-full h-full ${openItem.imageFit === "contain" ? "object-contain" : "object-cover"}`}
                       style={{ objectPosition: openItem.imagePosition ?? "center top" }}
