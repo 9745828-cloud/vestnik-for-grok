@@ -6,4 +6,13 @@
 // You can pass additional config via defineConfig({ vite: { ... } }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
-export default defineConfig();
+/**
+ * Nitro is required for a real SSR deploy.
+ * - On Vercel: VERCEL=1 → force preset "vercel" (otherwise Vercel serves nothing → NOT_FOUND).
+ * - Elsewhere (local / Cloudflare / self-host): nitro: true so builds produce a server bundle
+ *   (defaultPreset cloudflare-module; Nitro can still auto-detect host when applicable).
+ * - Dev (`vite dev`) does not need nitro; the plugin only runs on `vite build`.
+ */
+export default defineConfig({
+  nitro: process.env.VERCEL ? { preset: "vercel" } : true,
+});
