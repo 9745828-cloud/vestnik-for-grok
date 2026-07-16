@@ -243,13 +243,22 @@ function KodPage() {
                       className={cls}
                       disabled={revealed}
                     >
-                      <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center border border-current rounded-sm text-[11px]">
+                      <span
+                        className={`mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center border border-current text-[11px] ${
+                          q.kind === "single" ? "rounded-full" : "rounded-sm"
+                        }`}
+                        aria-hidden
+                      >
                         {revealed && isRight ? (
                           <Check className="h-3.5 w-3.5" />
                         ) : revealed && selected ? (
                           <XIcon className="h-3.5 w-3.5" />
                         ) : selected ? (
-                          "✓"
+                          q.kind === "single" ? (
+                            <span className="h-2 w-2 rounded-full bg-current" />
+                          ) : (
+                            "✓"
+                          )
                         ) : (
                           ""
                         )}
@@ -310,22 +319,35 @@ function KodPage() {
               <div className="mt-2 text-foreground/70">
                 {t("Правильных ответов:", "Correct answers:")} <span className="font-semibold text-bordo">{score}</span> {t("из", "of")} {total}
               </div>
-              <p className="mt-5 text-foreground/85 leading-relaxed">{level.text}</p>
+              <p className="mt-5 text-foreground/85 leading-relaxed max-w-2xl">{level.text}</p>
 
-              <div className="mt-6 flex flex-wrap gap-3">
-                {level.links.map((l) => {
-                  const target = splitLinkTarget(l.to);
-                  return (
-                  <Link
-                    key={l.to}
-                    to={target.pathname}
-                    hash={target.hash}
-                    className="inline-flex items-center px-5 py-2.5 border border-gold/70 text-bordo text-[11px] uppercase tracking-[0.22em] bg-cream hover:bg-ivory transition-colors"
-                  >
-                    {l.label}
-                  </Link>
-                )})}
-              </div>
+              {level.links.length > 0 && (
+                <div className="mt-8">
+                  <div className="text-[10px] uppercase tracking-[0.28em] text-gold mb-3">
+                    {t("Рекомендуем", "Recommended")}
+                  </div>
+                  <div className="grid sm:grid-cols-2 gap-3 max-w-2xl">
+                    {level.links.map((l) => {
+                      const target = splitLinkTarget(l.to);
+                      return (
+                        <Link
+                          key={l.to}
+                          to={target.pathname}
+                          hash={target.hash}
+                          className="group flex items-center justify-between gap-3 rounded-sm border border-gold/50 bg-cream/80 px-5 py-4 text-bordo transition-colors hover:border-gold hover:bg-ivory"
+                        >
+                          <span className="font-display text-base md:text-lg leading-snug">
+                            {l.label}
+                          </span>
+                          <span className="shrink-0 text-gold transition-transform group-hover:translate-x-0.5" aria-hidden>
+                            →
+                          </span>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
 
               <div className="mt-10 pt-8 border-t border-border/60">
                 <div className="text-[10px] uppercase tracking-[0.3em] text-gold">
@@ -388,43 +410,44 @@ function KodPage() {
                 </div>
               </div>
 
-              <div className="mt-10 flex flex-wrap gap-3">
-                <button
-                  onClick={restart}
-                  className="inline-flex items-center px-6 py-3 bg-bordo text-cream text-xs uppercase tracking-[0.22em] hover:bg-[oklch(0.30_0.10_25)] transition-colors"
-                >
-                  {t("Пройти заново", "Try again")}
-                </button>
-                <Link
-                  to="/azbuka"
-                  className="inline-flex items-center px-6 py-3 border border-gold/70 text-bordo text-xs uppercase tracking-[0.22em] hover:bg-cream transition-colors"
-                >
-                  {t("К Азбуке мецената", "To the Glossary")}
-                </Link>
-                <Link
-                  to="/litsa"
-                  className="inline-flex items-center px-6 py-3 border border-gold/70 text-bordo text-xs uppercase tracking-[0.22em] hover:bg-cream transition-colors"
-                >
-                  {t("К галерее лиц", "To the gallery of faces")}
-                </Link>
-                <Link
-                  to="/nasledie"
-                  className="inline-flex items-center px-6 py-3 border border-gold/70 text-bordo text-xs uppercase tracking-[0.22em] hover:bg-cream transition-colors"
-                >
-                  {t("К наследию", "To the legacy")}
-                </Link>
-                <Link
-                  to="/puti"
-                  className="inline-flex items-center px-6 py-3 border border-gold/70 text-bordo text-xs uppercase tracking-[0.22em] hover:bg-cream transition-colors"
-                >
-                  {t("К путям участия", "To paths of participation")}
-                </Link>
-                <Link
-                  to="/geografiya"
-                  className="inline-flex items-center px-6 py-3 border border-gold/70 text-bordo text-xs uppercase tracking-[0.22em] hover:bg-cream transition-colors"
-                >
-                  {t("К географии добра", "To the geography of good")}
-                </Link>
+              <div className="mt-10 pt-8 border-t border-border/60 space-y-6">
+                <div>
+                  <button
+                    onClick={restart}
+                    className="inline-flex w-full sm:w-auto items-center justify-center px-8 py-3.5 bg-bordo text-cream text-xs uppercase tracking-[0.2em] hover:bg-[oklch(0.30_0.10_25)] transition-colors"
+                  >
+                    {t("Пройти заново", "Try again")}
+                  </button>
+                </div>
+
+                <div>
+                  <div className="text-[10px] uppercase tracking-[0.28em] text-gold mb-3">
+                    {t("Продолжить чтение", "Continue reading")}
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {(
+                      [
+                        { to: "/azbuka", label: t("Азбука мецената", "Patron's ABC") },
+                        { to: "/litsa", label: t("Лица", "Faces") },
+                        { to: "/nasledie", label: t("Наследие", "Legacy") },
+                        { to: "/puti", label: t("Пути участия", "Paths") },
+                        { to: "/geografiya", label: t("География добра", "Geography of good") },
+                        { to: "/letopis", label: t("Летопись", "Chronicle") },
+                      ] as const
+                    ).map((item) => (
+                      <Link
+                        key={item.to}
+                        to={item.to}
+                        className="group flex items-center justify-between gap-3 rounded-sm border border-border/70 bg-card px-4 py-3.5 text-sm text-foreground/85 transition-colors hover:border-gold hover:text-bordo hover:bg-cream/60"
+                      >
+                        <span className="leading-snug">{item.label}</span>
+                        <span className="shrink-0 text-gold/80 text-xs transition-transform group-hover:translate-x-0.5" aria-hidden>
+                          →
+                        </span>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           )}

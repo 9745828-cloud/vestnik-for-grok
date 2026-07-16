@@ -1,14 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import heroGeografiya from "@/assets/hero-geografiya.jpg";
 import { PageHero } from "@/components/site/PageHero";
 import { useGeo, usePersons } from "@/data/content.localized";
-import { useT } from "@/i18n/lang";
+import { useT, usePlural, PLURAL_CITY, PLURAL_COUNTRY } from "@/i18n/lang";
 import { focusElementById, getFocusTarget } from "@/lib/focus-target";
 import { ComposableMap, Geographies, Geography, Marker } from "react-simple-maps";
 import { geoOrthographic, geoPath } from "d3-geo";
-import { MapPin, Users, Pause, Play, RotateCw, ZoomIn, ZoomOut } from "lucide-react";
+import { MapPin, Users, Pause, Play, RotateCw, ZoomIn, ZoomOut, ChevronDown, Globe2 } from "lucide-react";
 
 // Lightweight TopoJSON of world countries (110m). CDN-hosted, cached by browser.
 const WORLD_TOPO = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
@@ -210,6 +210,49 @@ const CITY_COORDS: Record<string, [number, number]> = {
   "开罗": [31.24, 30.04],
   "布达佩斯": [19.04, 47.50],
 
+  "Афины": [23.73, 37.98],
+  "Athens": [23.73, 37.98],
+  "أثينا": [23.73, 37.98],
+  "雅典": [23.73, 37.98],
+
+  "Пилани": [75.59, 28.37],
+  "Pilani": [75.59, 28.37],
+  "بيلاني": [75.59, 28.37],
+  "皮拉尼": [75.59, 28.37],
+  "Эль-Кувейт": [47.98, 29.38],
+  "Kuwait City": [47.98, 29.38],
+  "مدينة الكويت": [47.98, 29.38],
+  "科威特城": [47.98, 29.38],
+  "Монтеррей": [-100.32, 25.69],
+  "Monterrey": [-100.32, 25.69],
+  "مونتيري": [-100.32, 25.69],
+  "蒙特雷": [-100.32, 25.69],
+  "Сан-Паулу": [-46.63, -23.55],
+  "São Paulo": [-46.63, -23.55],
+  "ساو باولو": [-46.63, -23.55],
+  "圣保罗": [-46.63, -23.55],
+
+  "Мельбурн": [144.96, -37.81],
+  "Melbourne": [144.96, -37.81],
+  "ملبورن": [144.96, -37.81],
+  "墨尔本": [144.96, -37.81],
+  "Киото": [135.77, 35.01],
+  "Kyoto": [135.77, 35.01],
+  "كيوتو": [135.77, 35.01],
+  "京都": [135.77, 35.01],
+  "Сеул": [126.98, 37.57],
+  "Seoul": [126.98, 37.57],
+  "سيول": [126.98, 37.57],
+  "首尔": [126.98, 37.57],
+  "Чеджу": [126.53, 33.50],
+  "Jeju": [126.53, 33.50],
+  "جيجو": [126.53, 33.50],
+  "济州": [126.53, 33.50],
+  "Чикаго": [-87.63, 41.88],
+  "Chicago": [-87.63, 41.88],
+  "شيكاغو": [-87.63, 41.88],
+  "芝加哥": [-87.63, 41.88],
+
   "Балтимор": [-76.61, 39.29],
   "Baltimore": [-76.61, 39.29],
   "بالتيمور": [-76.61, 39.29],
@@ -221,7 +264,7 @@ export const Route = createFileRoute("/geografiya")({
   head: () => ({
     meta: [
       { title: "География добра — карта щедрости" },
-      { name: "description", content: "Вращающийся глобус в стиле сепия: 30 меценатов и филантропов на карте мира." },
+      { name: "description", content: "Вращающийся глобус в стиле сепия: меценаты и филантропы на карте мира." },
       { property: "og:title", content: "География добра" },
       { property: "og:description", content: "Где жили и творили щедрые сердца — карта мира." },
     ],
@@ -231,23 +274,39 @@ export const Route = createFileRoute("/geografiya")({
 
 function Geo() {
   const t = useT();
+  const plural = usePlural();
   const GEO = useGeo();
   const PERSONS = usePersons();
-  const [active, setActive] = useState(0);
+  const [active, setActive] = useState<number | null>(null);
+  const [country, setCountry] = useState("");
   const [rotation, setRotation] = useState<[number, number, number]>([-50, -30, 0]);
   const [spinning, setSpinning] = useState(true);
   const [zoom, setZoom] = useState(1);
   const draggingRef = useRef<{ x: number; y: number; rot: [number, number, number] } | null>(null);
   const dragMovedRef = useRef(0);
 
+  const countries = useMemo(() => {
+    const set = new Set(GEO.map((g) => g.country));
+    return [...set].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
+  }, [GEO]);
+
+  const citiesInCountry = useMemo(() => {
+    if (!country) return [] as { city: string; index: number }[];
+    return GEO
+      .map((g, index) => ({ city: g.city, index, country: g.country }))
+      .filter((x) => x.country === country)
+      .sort((a, b) => a.city.localeCompare(b.city, undefined, { sensitivity: "base" }))
+      .map(({ city, index }) => ({ city, index }));
+  }, [GEO, country]);
+
   // Auto-rotate
   useEffect(() => {
     if (!spinning) return;
     let raf = 0;
     let last = performance.now();
-    const tick = (t: number) => {
-      const dt = t - last;
-      last = t;
+    const tick = (now: number) => {
+      const dt = now - last;
+      last = now;
       setRotation(([l, p, g]) => [l + dt * 0.012, p, g]);
       raf = requestAnimationFrame(tick);
     };
@@ -258,11 +317,22 @@ function Geo() {
   // Center globe on selected city
   const focusCity = (i: number) => {
     setActive(i);
+    setCountry(GEO[i].country);
     const c = CITY_COORDS[GEO[i].city];
     if (c) {
       setSpinning(false);
       setRotation([-c[0], -c[1], 0]);
     }
+  };
+
+  const onCountryChange = (value: string) => {
+    setCountry(value);
+    setActive(null);
+  };
+
+  const onCityChange = (cityName: string) => {
+    const idx = GEO.findIndex((g) => g.city === cityName && g.country === country);
+    if (idx >= 0) focusCity(idx);
   };
 
   // Deep-link: ?focus=Москва focuses that city on mount
@@ -319,11 +389,16 @@ function Geo() {
     }
   };
 
-  const point = GEO[active];
-  const peopleHere = PERSONS.filter((p) => point.personSlugs.includes(p.slug));
+  const point = active !== null ? GEO[active] : null;
+  const peopleHere = point
+    ? PERSONS.filter((p) => point.personSlugs.includes(p.slug))
+    : [];
 
   const cityCount = GEO.length;
-  const countryCount = new Set(GEO.map((g) => g.country)).size;
+  const countryCount = countries.length;
+
+  const selectClass =
+    "w-full appearance-none rounded-sm border border-gold/40 bg-gradient-to-b from-[oklch(0.99_0.008_90)] to-[oklch(0.95_0.02_82)] px-3.5 py-2.5 pr-10 text-sm text-ink shadow-[inset_0_1px_0_oklch(1_0_0/0.7)] outline-none transition-colors hover:border-gold focus:border-bordo focus:ring-1 focus:ring-bordo/30 disabled:cursor-not-allowed disabled:opacity-50";
 
   // For visibility check on the back side of the globe
   const baseScale = 260 * zoom;
@@ -350,11 +425,15 @@ function Geo() {
           <div className="grid grid-cols-2 max-w-xl mx-auto rounded-sm overflow-hidden border border-gold/40 bg-gradient-to-br from-[oklch(0.96_0.02_82)] to-[oklch(0.92_0.04_80)] shadow-[0_20px_60px_-30px_oklch(0.18_0.05_25/0.4)]">
             <div className="flex flex-col items-center justify-center py-7 px-4 border-r border-gold/30">
               <div className="font-display text-4xl md:text-5xl text-bordo leading-none">{cityCount}</div>
-              <div className="text-[10px] tracking-[0.3em] uppercase text-gold mt-2">{t("города(ов)", "cities")}</div>
+              <div className="text-[10px] tracking-[0.22em] uppercase text-gold mt-2">
+                {plural(cityCount, PLURAL_CITY)}
+              </div>
             </div>
             <div className="flex flex-col items-center justify-center py-7 px-4">
               <div className="font-display text-4xl md:text-5xl text-bordo leading-none">{countryCount}</div>
-              <div className="text-[10px] tracking-[0.3em] uppercase text-gold mt-2">{t("стран", "countries")}</div>
+              <div className="text-[10px] tracking-[0.22em] uppercase text-gold mt-2">
+                {plural(countryCount, PLURAL_COUNTRY)}
+              </div>
             </div>
           </div>
         </div>
@@ -599,74 +678,146 @@ function Geo() {
             </p>
           </div>
 
-          <aside id="geo-aside" className="lg:sticky lg:top-24 rounded-sm transition-shadow">
-            <div className="text-[10px] tracking-[0.3em] uppercase text-gold mb-3 flex items-center gap-2">
-              <MapPin className="h-3 w-3" /> {point.country}
+          <aside
+            id="geo-aside"
+            className="lg:sticky lg:top-24 rounded-sm border border-gold/30 bg-gradient-to-b from-[oklch(0.99_0.01_88)] to-[oklch(0.96_0.02_82)] p-5 md:p-6 shadow-[0_20px_50px_-28px_oklch(0.18_0.05_25/0.35)]"
+          >
+            <div className="text-[10px] tracking-[0.3em] uppercase text-gold mb-4 flex items-center gap-2">
+              <Globe2 className="h-3.5 w-3.5" />
+              {t("Найти на карте", "Find on the map")}
             </div>
-            <div className="font-display text-4xl md:text-5xl text-bordo">{point.city}</div>
-            <div className="gold-divider my-5 w-16" />
-            <p className="text-foreground/80 leading-relaxed">{point.story}</p>
+            <div className="font-display text-2xl md:text-3xl text-bordo leading-tight">
+              {t("Страна и город", "Country and city")}
+            </div>
+            <div className="gold-divider my-4 w-16" />
+            <p className="text-sm text-foreground/70 leading-relaxed mb-6">
+              {t(
+                "Выберите страну, затем город — на глобусе откроется точка, ниже появятся меценаты этого места.",
+                "Choose a country, then a city — the globe will focus there and patrons of that place will appear below.",
+              )}
+            </p>
 
-            {peopleHere.length > 0 && (
-              <div className="mt-7">
-                <div className="text-[10px] tracking-[0.3em] uppercase text-gold mb-3 flex items-center gap-2">
-                  <Users className="h-3 w-3" /> {t("Меценаты города", "Patrons of this city")} · {peopleHere.length}
+            <div className="space-y-4">
+              <label className="block">
+                <span className="mb-1.5 flex items-center gap-1.5 text-[10px] tracking-[0.25em] uppercase text-gold">
+                  <Globe2 className="h-3 w-3" />
+                  {t("Страна / регион", "Country / region")}
+                </span>
+                <div className="relative">
+                  <select
+                    value={country}
+                    onChange={(e) => onCountryChange(e.target.value)}
+                    className={selectClass}
+                    aria-label={t("Страна / регион", "Country / region")}
+                  >
+                    <option value="">
+                      {t("Выберите страну…", "Select a country…")}
+                    </option>
+                    {countries.map((c) => (
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-bordo/60" />
                 </div>
-                <div className="space-y-2">
-                  {peopleHere.map((pp) => (
-                    <Link
-                      key={pp.slug}
-                      to="/litsa/$slug"
-                      params={{ slug: pp.slug }}
-                      className="block bg-card border border-border/60 hover:border-gold/60 px-4 py-3 rounded-sm transition-colors"
-                    >
-                      <div className="font-display text-lg text-bordo leading-tight">{pp.name}</div>
-                      <div className="text-[11px] text-muted-foreground mt-0.5">{pp.years} · {pp.era}</div>
-                    </Link>
-                  ))}
+              </label>
+
+              <label className="block">
+                <span className="mb-1.5 flex items-center gap-1.5 text-[10px] tracking-[0.25em] uppercase text-gold">
+                  <MapPin className="h-3 w-3" />
+                  {t("Город", "City")}
+                </span>
+                <div className="relative">
+                  <select
+                    value={point?.city ?? ""}
+                    onChange={(e) => onCityChange(e.target.value)}
+                    disabled={!country}
+                    className={selectClass}
+                    aria-label={t("Город", "City")}
+                  >
+                    <option value="">
+                      {country
+                        ? t("Выберите город…", "Select a city…")
+                        : t("Сначала выберите страну", "Select a country first")}
+                    </option>
+                    {citiesInCountry.map(({ city }) => (
+                      <option key={city} value={city}>
+                        {city}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-bordo/60" />
                 </div>
+              </label>
+            </div>
+
+            {!point && (
+              <div className="mt-8 rounded-sm border border-dashed border-gold/40 bg-[oklch(0.98_0.015_85)] px-4 py-6 text-center">
+                <MapPin className="mx-auto mb-2 h-5 w-5 text-gold" />
+                <p className="font-display text-base md:text-lg text-bordo/80 leading-relaxed">
+                  {t(
+                    "Выберите страну и город, или кликните по маркеру на глобусе",
+                    "Select a country and city, or click a marker on the globe",
+                  )}
+                </p>
               </div>
             )}
 
-            <div className="mt-8">
-              <div className="text-[10px] tracking-[0.3em] uppercase text-gold mb-3">{t("Все города", "All cities")}</div>
-              <div className="space-y-4">
-                {Object.entries(
-                  GEO.map((g, i) => ({ g, i })).reduce<Record<string, { g: (typeof GEO)[number]; i: number }[]>>(
-                    (acc, item) => {
-                      const key = item.g.country;
-                      (acc[key] ||= []).push(item);
-                      return acc;
-                    },
-                    {},
-                  ),
-                )
-                  .sort((a, b) => a[0].localeCompare(b[0]))
-                  .map(([country, items]) => (
-                    <div key={country}>
-                      <div className="text-[11px] font-semibold text-foreground/60 mb-2">{country}</div>
-                      <div className="flex flex-wrap gap-2">
-                        {items
-                          .slice()
-                          .sort((a, b) => a.g.city.localeCompare(b.g.city))
-                          .map(({ g, i }) => (
-                            <button
-                              key={g.city}
-                              onClick={() => focusCity(i)}
-                              className={`px-3 py-1.5 text-xs border transition-colors ${
-                                i === active
-                                  ? "bg-bordo text-cream border-bordo"
-                                  : "border-border/60 text-foreground/70 hover:border-gold hover:text-bordo"
-                              }`}
-                            >
-                              {g.city}
-                            </button>
-                          ))}
-                      </div>
+            {point && (
+              <div className="mt-8 animate-in fade-in duration-300">
+                <div className="text-[10px] tracking-[0.3em] uppercase text-gold mb-2 flex items-center gap-2">
+                  <MapPin className="h-3 w-3" /> {point.country}
+                </div>
+                <div className="font-display text-3xl md:text-4xl text-bordo leading-tight">{point.city}</div>
+                <div className="gold-divider my-4 w-14" />
+                <p className="text-foreground/80 leading-relaxed text-sm md:text-[15px]">{point.story}</p>
+
+                <div className="mt-7">
+                  <div className="text-[10px] tracking-[0.3em] uppercase text-gold mb-3 flex items-center gap-2">
+                    <Users className="h-3 w-3" />
+                    {t("Меценаты этого места", "Patrons of this place")}
+                    {peopleHere.length > 0 && (
+                      <span className="ml-auto rounded-full border border-gold/50 bg-cream/80 px-2 py-0.5 text-[10px] tracking-normal text-bordo font-sans">
+                        {peopleHere.length}
+                      </span>
+                    )}
+                  </div>
+
+                  {peopleHere.length === 0 ? (
+                    <p className="text-sm text-muted-foreground italic">
+                      {t("Для этого города пока нет карточек в «Лицах».", "No patron cards for this city yet.")}
+                    </p>
+                  ) : (
+                    <div className="space-y-2 max-h-[min(28rem,50vh)] overflow-y-auto pr-1">
+                      {peopleHere.map((pp) => (
+                        <Link
+                          key={pp.slug}
+                          to="/litsa/$slug"
+                          params={{ slug: pp.slug }}
+                          className="group block rounded-sm border border-border/60 bg-card px-4 py-3 transition-all hover:border-gold/70 hover:shadow-[0_8px_24px_-16px_oklch(0.36_0.12_25/0.45)]"
+                        >
+                          <div className="font-display text-lg text-bordo leading-tight group-hover:text-bordo-deep transition-colors">
+                            {pp.name}
+                          </div>
+                          <div className="text-[11px] text-muted-foreground mt-0.5">
+                            {pp.years} · {pp.era}
+                          </div>
+                          {pp.short && (
+                            <div className="mt-1.5 text-xs text-foreground/65 line-clamp-2 leading-relaxed">
+                              {pp.short}
+                            </div>
+                          )}
+                          <div className="mt-2 text-[10px] tracking-[0.2em] uppercase text-gold opacity-0 transition-opacity group-hover:opacity-100">
+                            {t("Узнать больше →", "Learn more →")}
+                          </div>
+                        </Link>
+                      ))}
                     </div>
-                  ))}
+                  )}
+                </div>
               </div>
-            </div>
+            )}
           </aside>
         </div>
       </section>

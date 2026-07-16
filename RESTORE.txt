@@ -1,21 +1,20 @@
-Intermediate backup of Vestnik Mecenata
-Updated: 2026-07-14 (evening) MSK
+Intermediate backup 2 of Vestnik Mecenata
+Updated: 2026-07-16 MSK
 Source: /Users/dmitry/vestnik-for-grok
 
-State: after patrons №1–25, user portrait/legacy photo replacements,
-Christina salon + IISc cropped without underlay, other legacy underlays
-where needed, AGENTS.md rules.
+State: after patrons №1–40; geography selectors + pluralization;
+footer polish; kod quiz UI; AR/ZH menu/UI; chronological sort;
+homepage stats 130+/80; Temirkanov living-faces video (public/videos/temirkanov.mp4).
 
 --- BACKUPS POLICY ---
-1) FIRST / IMMUTABLE (NEVER delete, NEVER overwrite):
+1) FIRST / IMMUTABLE:
    /Users/dmitry/vestnik-for-grok-baseline-github-2026-07-13
-
-2) THIS intermediate restore point:
+2) Intermediate (patrons 1–25 era):
    /Users/dmitry/vestnik-for-grok-baseline-after-patrons-1-25-2026-07-14
+3) THIS intermediate backup 2:
+   /Users/dmitry/vestnik-for-grok-Промежуточный-бэкап-2
 
-To restore THIS version:
+Restore:
   rsync -a --delete --exclude node_modules \
-    "/Users/dmitry/vestnik-for-grok-baseline-after-patrons-1-25-2026-07-14/" \
+    "/Users/dmitry/vestnik-for-grok-Промежуточный-бэкап-2/" \
     "/Users/dmitry/vestnik-for-grok/"
-
-NEVER delete the first baseline.

@@ -23,6 +23,9 @@ import nobelVideo from "@/assets/videos/nobel.mp4.asset.json";
 import galimzyanovVideo from "@/assets/videos/galimzyanov.mp4.asset.json";
 import { resolvePortrait } from "@/lib/media";
 
+/** Local video under public/videos — deploy-safe path (same pattern as portraits/legacy). */
+const TEMIRKANOV_VIDEO = "/videos/temirkanov.mp4";
+
 const LIVING_FACES = [
   { slug: "maecenas", video: maecenasVideo.url },
   { slug: "al-mamun", video: alMamunVideo.url },
@@ -35,6 +38,7 @@ const LIVING_FACES = [
   { slug: "carnegie", video: carnegieVideo.url },
   { slug: "alfred-nobel", video: nobelVideo.url },
   { slug: "galimzyanov-asgat", video: galimzyanovVideo.url },
+  { slug: "temirkanov", video: TEMIRKANOV_VIDEO },
 ];
 
 export const Route = createFileRoute("/")({
@@ -87,8 +91,8 @@ function Home() {
       {/* Счётчики */}
       <section id="after-hero" className="paper-bg border-b border-border/60">
         <div className="container mx-auto px-4 lg:px-8 py-16 grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-6">
-          <Stat value="120+" label={t("Имён в летописи", "Names in the chronicle")} />
-          <Stat value="40" label={t("Городов на карте", "Cities on the map")} />
+          <Stat value="130+" label={t("Имён в летописи", "Names in the chronicle")} />
+          <Stat value="80" label={t("Городов на карте", "Cities on the map")} />
           <Stat value="V" label={t("Эпох щедрости", "Eras of generosity")} />
         </div>
       </section>

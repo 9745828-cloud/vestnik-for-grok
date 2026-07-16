@@ -33,11 +33,56 @@ function ruDecline(n: number, forms: [string, string, string]): string {
   return many;
 }
 
+/**
+ * Sort key for Person.years across RU / EN / AR / ZH.
+ * Uses birth (first) year; BC → negative. Unparseable / “present day” → end of list.
+ */
 function personSortYear(years: string): number {
-  const isBC = /до н\. ?э\.|BC/i.test(years);
-  const match = years.match(/\d+/);
-  if (!match) return Number.MAX_SAFE_INTEGER;
-  const n = parseInt(match[0], 10);
+  const s = years.trim();
+  const isBC =
+    /до н\.?\s*э\.|BC|BCE|قبل الميلاد|ق\.?\s*م\.?|公元前/i.test(s);
+
+  // Decade within century in Arabic: "ستينيات القرن العشرين" → 1960s
+  const arDecade = s.match(
+    /(عشري|عشرين|ثلاثيني|أربعيني|خمسيني|ستيني|سبعيني|ثمانيني|تسعيني)ات\s+القرن\s+(العشرين|التاسع عشر)/,
+  );
+  if (arDecade) {
+    const decadeMap: Record<string, number> = {
+      عشري: 0,
+      عشرين: 20,
+      ثلاثيني: 30,
+      أربعيني: 40,
+      خمسيني: 50,
+      ستيني: 60,
+      سبعيني: 70,
+      ثمانيني: 80,
+      تسعيني: 90,
+    };
+    const d = decadeMap[arDecade[1]] ?? 50;
+    const base = arDecade[2].includes("التاسع") ? 1800 : 1900;
+    return base + d;
+  }
+
+  // Prefer 3–4 digit years (birth year): "1960-е", "b. 1972"
+  const y3or4 = s.match(/\d{3,4}/);
+  if (y3or4) {
+    const n = parseInt(y3or4[0], 10);
+    return isBC ? -n : n;
+  }
+
+  // No concrete year — century-only or “our days”
+  if (
+    /наши дни|present day|أيامنا|当代|сегодня/i.test(s) ||
+    /век|century|قرن|世纪|XX\b/i.test(s)
+  ) {
+    if (/20|XX|العشرين/i.test(s)) return 1950;
+    if (/19|XIX|التاسع عشر/i.test(s)) return 1850;
+    return Number.MAX_SAFE_INTEGER;
+  }
+
+  const y = s.match(/\d+/);
+  if (!y) return Number.MAX_SAFE_INTEGER;
+  const n = parseInt(y[0], 10);
   return isBC ? -n : n;
 }
 

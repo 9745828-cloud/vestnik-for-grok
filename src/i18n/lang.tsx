@@ -107,3 +107,69 @@ export function Tx({ ru, en }: { ru: string; en: string }) {
   const lang = useLang();
   return <>{lang === "ru" ? ru : uiTranslate(lang, en)}</>;
 }
+
+/**
+ * Plural / declension forms per language.
+ * - ru: [1, 2–4, 5+]  e.g. город / города / городов
+ * - en: [1, other]     e.g. city / cities
+ * - ar: [1, 2, 3–10, 11+]  singular / dual / few / many
+ * - zh: single invariant form (no plural inflection)
+ */
+export type PluralForms = {
+  ru: [one: string, few: string, many: string];
+  en: [one: string, other: string];
+  ar: [one: string, dual: string, few: string, many: string];
+  zh: string;
+};
+
+/** Russian: 1 город, 2–4 города, 5–20 городов, 21 город, 22–24 города, … */
+function ruPlural(n: number, [one, few, many]: [string, string, string]): string {
+  const abs = Math.abs(n);
+  const mod10 = abs % 10;
+  const mod100 = abs % 100;
+  if (mod10 === 1 && mod100 !== 11) return one;
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return few;
+  return many;
+}
+
+/** Arabic number agreement (simplified MSA): 1 / 2 / 3–10 / 11+. */
+function arPlural(
+  n: number,
+  [one, dual, few, many]: [string, string, string, string],
+): string {
+  const abs = Math.abs(n);
+  if (abs === 0) return many;
+  if (abs === 1) return one;
+  if (abs === 2) return dual;
+  if (abs >= 3 && abs <= 10) return few;
+  return many;
+}
+
+/** Pick the correct word form for `n` in the active language. */
+export function pluralize(lang: Lang, n: number, forms: PluralForms): string {
+  if (lang === "ru") return ruPlural(n, forms.ru);
+  if (lang === "en") return Math.abs(n) === 1 ? forms.en[0] : forms.en[1];
+  if (lang === "ar") return arPlural(n, forms.ar);
+  return forms.zh;
+}
+
+/** Hook: pluralize using the current UI language. */
+export function usePlural() {
+  const lang = useLang();
+  return (n: number, forms: PluralForms) => pluralize(lang, n, forms);
+}
+
+/** Ready-made forms for the geography stats block. */
+export const PLURAL_CITY: PluralForms = {
+  ru: ["город", "города", "городов"],
+  en: ["city", "cities"],
+  ar: ["مدينة", "مدينتان", "مدن", "مدينة"],
+  zh: "城市",
+};
+
+export const PLURAL_COUNTRY: PluralForms = {
+  ru: ["страна", "страны", "стран"],
+  en: ["country", "countries"],
+  ar: ["دولة", "دولتان", "دول", "دولة"],
+  zh: "国家",
+};

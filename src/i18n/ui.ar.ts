@@ -189,6 +189,7 @@ const UI_AR: Record<string, string> = {
   "Contacts": "جهات الاتصال",
   "Moscow, Russia": "موسكو، روسيا",
   "“He who does good to another does good also to himself.”": "«من أحسن إلى غيره أحسن إلى نفسه أيضًا.»",
+  "He who does good to another does good also to himself.": "من أحسن إلى غيره أحسن إلى نفسه أيضًا.",
   "Seneca": "سينيكا",
   "Patron & Philanthropist Herald. All materials are for educational purposes.": "رائد العمل الخيري والإنساني. جميع المواد لأغراض تعليمية.",
   "Menu": "القائمة",
@@ -197,6 +198,41 @@ const UI_AR: Record<string, string> = {
   "Herald": "هيرالد",
   "Go to era ": "اذهب إلى العصر",
   "Open faces gallery": "افتح معرض الوجوه",
-  "Scroll down": "مرر للأسفل"
+  "Scroll down": "مرر للأسفل",
+
+  // Geography panel (selectors)
+  "Find on the map": "ابحث على الخريطة",
+  "Country and city": "البلد والمدينة",
+  "Choose a country, then a city — the globe will focus there and patrons of that place will appear below.": "اختر البلد ثم المدينة — ستركز الكرة الأرضية على المكان وتظهر أدناه رعاة هذا الموقع.",
+  "Country / region": "البلد / المنطقة",
+  "Select a country…": "اختر بلداً…",
+  "City": "المدينة",
+  "Select a city…": "اختر مدينة…",
+  "Select a country first": "اختر البلد أولاً",
+  "Select a country and city, or click a marker on the globe": "اختر البلد والمدينة، أو انقر على علامة على الكرة الأرضية",
+  "Patrons of this place": "رعاة هذا المكان",
+  "No patron cards for this city yet.": "لا توجد بطاقات رعاة لهذه المدينة بعد.",
+  "Learn more →": "اعرف المزيد ←",
+
+  // Homepage
+  "Their names were preserved by history, their deeds by grateful memory. Today their faces come alive again.":
+    "حفظ التاريخ أسماءهم، وحفظت الذاكرة الممتنة أعمالهم. واليوم تعود وجوههم إلى الحياة من جديد.",
+  "Drag the timeline, tap an era, or swipe to see how the faces of Russian generosity changed over time.":
+    "اسحب المسطرة الزمنية، أو اضغط على حقبة، أو مرّر بإصبعك لترى كيف تغيّرت وجوه الكرم الروسي عبر الزمن.",
+
+  // Header navigation (short menu labels)
+  "Home": "الرئيسية",
+  "ABC": "الأبجدية",
+  "Chronicle": "السجل",
+  "Faces": "الوجوه",
+  "Paths": "مسارات المشاركة",
+  "Geography": "جغرافيا الخير",
+  "Pulse": "نبض الزمن",
+  "Find your path": "اكتشف مسارك",
+  "Patron's code": "ميثاق الراعي",
+
+  // Quiz result CTAs
+  "Recommended": "نوصي به",
+  "Continue reading": "تابع القراءة",
 };
 export default UI_AR;

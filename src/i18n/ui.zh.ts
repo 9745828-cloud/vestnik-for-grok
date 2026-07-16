@@ -189,6 +189,7 @@ const UI_ZH: Record<string, string> = {
   "Contacts": "联系方式",
   "Moscow, Russia": "俄罗斯，莫斯科",
   "“He who does good to another does good also to himself.”": "“施恩于人者，亦施恩于己。”",
+  "He who does good to another does good also to himself.": "施恩于人者，亦施恩于己。",
   "Seneca": "塞涅卡",
   "Patron & Philanthropist Herald. All materials are for educational purposes.": "赞助人与慈善家先驱。所有材料仅供教育目的。",
   "Menu": "菜单",
@@ -197,6 +198,41 @@ const UI_ZH: Record<string, string> = {
   "Herald": "先驱",
   "Go to era ": "前往时代",
   "Open faces gallery": "打开人物画廊",
-  "Scroll down": "向下滚动"
+  "Scroll down": "向下滚动",
+
+  // Geography panel (selectors)
+  "Find on the map": "在地图上查找",
+  "Country and city": "国家与城市",
+  "Choose a country, then a city — the globe will focus there and patrons of that place will appear below.": "请先选择国家，再选择城市——地球仪将聚焦该地，下方将显示该地的赞助人。",
+  "Country / region": "国家 / 地区",
+  "Select a country…": "选择国家…",
+  "City": "城市",
+  "Select a city…": "选择城市…",
+  "Select a country first": "请先选择国家",
+  "Select a country and city, or click a marker on the globe": "请选择国家和城市，或点击地球仪上的标记",
+  "Patrons of this place": "此地的赞助人",
+  "No patron cards for this city yet.": "该城市暂无人物卡片。",
+  "Learn more →": "了解更多 →",
+
+  // Homepage
+  "Their names were preserved by history, their deeds by grateful memory. Today their faces come alive again.":
+    "他们的名字由历史保存，他们的事迹由感恩的记忆铭记。今天，这些面孔再次焕发生机。",
+  "Drag the timeline, tap an era, or swipe to see how the faces of Russian generosity changed over time.":
+    "拖动时间轴、点选时代或滑动屏幕，看看俄罗斯慷慨的面孔如何随时代而变。",
+
+  // Header navigation (short menu labels)
+  "Home": "首页",
+  "ABC": "入门",
+  "Chronicle": "编年史",
+  "Faces": "人物",
+  "Paths": "参与之路",
+  "Geography": "善行地理",
+  "Pulse": "时代脉搏",
+  "Find your path": "寻找你的道路",
+  "Patron's code": "赞助人之道",
+
+  // Quiz result CTAs
+  "Recommended": "推荐",
+  "Continue reading": "继续阅读",
 };
 export default UI_ZH;

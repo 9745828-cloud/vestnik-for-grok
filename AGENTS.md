@@ -48,27 +48,66 @@
 | `city` | как в GEO / `CITY_COORDS` | `Мумбаи`, `Баку`, `Стамбул` |
 | `mapX` / `mapY` | equirectangular: `x=(lon+180)/360*100`, `y=(90-lat)/180*100` | как у соседних городов в GEO |
 
-### 3. Медиа (локально — **два каталога**)
+### 3. Медиа — канонический метод (жёстко)
 
-| Тип | Путь `public/` (dev / fallback) | Путь `src/assets/` (**обязательно для деплоя**) |
-|-----|----------------------------------|--------------------------------------------------|
-| Портрет | `public/portraits/{slug}.jpg` | `src/assets/portraits/{slug}.jpg` |
+**Принцип:** новые фотографии **не через hotlink**. Файл кладётся **в репозиторий** (папки проекта), коммитится, уезжает на хостинг при деплое из git.  
+В `content*.ts` в полях `portrait` / `image` — **только локальные пути** вида `"/portraits/…"` / `"/legacy/…"`, **никогда** `https://upload.wikimedia.org/…`, CDN, `/__l5e/…`.
+
+#### 3.1. Куда класть файлы (два каталога, одно имя)
+
+| Тип | 1) `public/` (URL в данных + статика Apache) | 2) `src/assets/` (бандл Vite / media-resolver) |
+|-----|-----------------------------------------------|------------------------------------------------|
+| Портрет («Лица») | `public/portraits/{slug}.jpg` | `src/assets/portraits/{slug}.jpg` |
 | Наследие | `public/legacy/{legacy-slug}.jpg` | `src/assets/legacy-photos/{legacy-slug}.jpg` |
 
-- **Почему два пути:** на задеплоенном Lovable/Cloudflare пути `/portraits/*` и `/legacy/*` часто **не отдаются** как статика (приходит HTML-оболочка SPA) — картинки «ломаются». UI резолвит их через `src/lib/media.ts` (`import.meta.glob` → `/assets/*-hash.jpg`). Без копии в `src/assets/...` на проде фото не будет.
-- При добавлении/замене фото: **положить файл в оба места** (одинаковое имя). Можно `cp public/portraits/X.jpg src/assets/portraits/X.jpg`.
-- **Hotlink (wikimedia/… URL) запрещён** в `portrait` / `image` для PERSONS и LEGACY — только локальные пути.
-- В данных: `portrait: "/portraits/..."`, `image: "/legacy/..."`.
-- Обновлять `portraitCaption` (Лица) / `imageCredit` (Наследие) под источник.
-- **Источник по умолчанию:** если точный автор/лицензия **неизвестны или не указаны** (в т.ч. фото от пользователя без подписи, миниатюра из поиска, смена файла без credit) — **всегда** писать **Wikimedia Commons**, а не «Архив редакции», «Editorial archive» и т.п.  
-  Примеры:  
-  - RU: `Портрет. Wikimedia Commons` / `Wikimedia Commons`  
-  - EN: `Portrait. Wikimedia Commons` / `Wikimedia Commons`  
-  - AR/ZH: та же логика с `Wikimedia Commons` в конце.  
-  Если источник **известен** (автор, Art UK, IAU, официальный сайт) — указывать его, а не подменять на Wikimedia.
-- Предпочитать Wikimedia Commons, официальные сайты фондов, свободные фото. При смене фото — перезаписывать тот же файл и обновлять путь + credit по правилу выше.
-- **Wikimedia / сеть:** при rate limit («too many requests») — паузы, `Special:FilePath`, нормальный User-Agent; не спамить API. Если после разумных попыток файл так и не скачан — см. правило 3 (честный список пользователю, **без** заглушек).
-- Проверка: файл на диске > ~8 KB и `file` показывает image/JPEG|PNG (не HTML-страницу ошибки).
+- Имя файла = `slug` сущности (kebab-case), расширение предпочтительно `.jpg` (допустимы `.png` / `.webp` при необходимости — тогда то же имя в данных).
+- **Всегда оба места.** После скачивания/получения от пользователя:
+  ```bash
+  # портрет
+  cp public/portraits/{slug}.jpg src/assets/portraits/{slug}.jpg
+  # наследие
+  cp public/legacy/{legacy-slug}.jpg src/assets/legacy-photos/{legacy-slug}.jpg
+  ```
+- В данных:
+  - `portrait: "/portraits/{slug}.jpg"`
+  - `image: "/legacy/{legacy-slug}.jpg"`
+- UI: `src/lib/media.ts` (`resolvePortrait` / `resolveLegacyImage`) через `import.meta.glob` подставляет бандл `/assets/*-hash.ext`. Страницы: `litsa.tsx`, `litsa.$slug.tsx`, `nasledie.tsx`, `index.tsx` — **не** вставлять raw URL мимо резолвера.
+- **Запрещено:** hotlink Wikimedia/внешних CDN; пути Lovable `/__l5e/…`; импорты только `*.asset.json` без реального файла в `public/` + `src/assets/`; заглушки и чужие портреты.
+
+#### 3.2. Откуда брать файл
+
+1. **От пользователя** (Desktop / «Grok build/Лица|Наследие» и т.п.) — конвертировать в JPEG при необходимости (`sips` / sharp), положить по путям выше.
+2. **Скачать агентом** (Wikimedia Commons, официальные сайты, свободные фото):
+   - скачать **на диск** в `public/…`, затем `cp` в `src/assets/…`;
+   - User-Agent нормальный; при rate limit — паузы, `Special:FilePath`;
+   - проверить: размер > ~8 KB, `file` → JPEG/PNG/WebP (не HTML-страница ошибки).
+3. Если скачать нельзя — **не** подставлять hotlink/заглушку: тексты довести, в ответе блок «Медиа: требуется ручная загрузка» (правило 3 в начале файла).
+
+#### 3.3. Подписи (credit)
+
+- `portraitCaption` / `imageCredit` — по реальному источнику.
+- Если автор/лицензия **неизвестны** — **Wikimedia Commons** (не «Архив редакции»).  
+  RU: `Портрет. Wikimedia Commons` · EN: `Portrait. Wikimedia Commons` · AR/ZH: та же логика.  
+  Если источник известен (Art UK, IAU, официальный сайт) — указывать его.
+
+#### 3.4. Почему так (кратко, для агента)
+
+- Hotlink на проде хрупкий (блокировки, 403, referrer).
+- На `vestnikmecenata.ru` (Apache) пути `/portraits/*` и `/legacy/*` работают **только если файл лежит в web root** после деплоя. Нет файла в репо → 404 на проде, хотя локально `vite dev` мог «скрывать» проблему.
+- Дубль в `src/assets/…` + `media.ts` даёт бандл в `/assets/*` при `npm run build` (Cloudflare/Nitro) — страховка, если статика `public/` на каком-то хосте не копируется.
+- Медиа **в git** → при деплое из репозитория подтягиваются автоматически (не отдельная ручная FTP-папка «на память»).
+
+#### 3.5. Чеклист медиа при добавлении/замене
+
+```
+[ ] Файл в public/portraits|legacy/{slug}.jpg (реальный image, не HTML)
+[ ] Та же копия в src/assets/portraits|legacy-photos/{slug}.jpg
+[ ] В content.ts / .en / .ar / .zh: путь /portraits/… или /legacy/…, НЕ https://
+[ ] Нет /__l5e/ и hotlink
+[ ] portraitCaption / imageCredit обновлены
+[ ] UI идёт через resolvePortrait / resolveLegacyImage (не обходить)
+[ ] После деплоя: GET https://…/portraits|legacy/{file} → 200 image/*
+```
 
 ### 4. Обязательные правки в данных (4 языковых файла)
 
@@ -165,8 +204,7 @@
 
 ```
 [ ] Строка не зелёная в Excel
-[ ] public/portraits/{slug}.jpg — реальный файл, не заглушка
-[ ] public/legacy/{legacy-slug}.jpg — реальный файл, не заглушка
+[ ] Медиа: §3 — public/ + src/assets/ (оба), пути /portraits|/legacy, без hotlink/__l5e
 [ ] PERSONS × 4 (ts, en, ar, zh) — ar/zh НЕ на английском
 [ ] GEO: city + personSlugs × 4 — города/story переведены
 [ ] LEGACY × 4 — title/short/full переведены
@@ -179,7 +217,7 @@
 ## База кода (актуально)
 
 Локальный проект: GitHub `9745828-cloud/vestnik-for-grok` (main) + добавленные меценаты.  
-Из Excel-таблицы в коде: **№1–10** (Медичи … Альберт Кан). **№11+** — ещё не добавлены.
+Из Excel-таблицы в коде: **№1–40** (Медичи … Джулиус Розенвальд). Список части 3 закрыт.
 
 ### Уже добавленные из таблицы (slug’ы)
 
@@ -205,6 +243,21 @@
 | 23 | Безмиалем Валиде-султан | `bezmialem-valide-sultan` | Стамбул | `dolmabahce-mosque` |
 | 24 | Принцесса Фатима Исмаил | `fatima-ismail` | Каир | `cairo-university` |
 | 25 | Иштван Сеченьи | `istvan-szechenyi` | Будапешт | `hungarian-academy` |
+| 26 | Эвангелис Заппас | `evangelis-zappas` | Афины | `zappeion` |
+| 27 | Георгиос Авероф | `georgios-averoff` | Афины | `panathenaic-stadium` |
+| 28 | Эмануил Гожду | `emanuil-gojdu` | Будапешт | `gojdu-foundation` |
+| 29 | Премчанд Ройчанд | `premchand-roychand` | Мумбаи | `rajabai-tower` |
+| 30 | Сэр Дорабджи Тата | `dorabji-tata` | Мумбаи | `sir-dorabji-tata-trust` |
+| 31 | Г. Д. Бирла | `gd-birla` | Пилани | `bits-pilani` |
+| 32 | Абдул Рахман аль-Сумайт | `abdul-rahman-al-sumait` | Эль-Кувейт | `direct-aid-sumait` |
+| 33 | Эухенио Гарса Сада | `eugenio-garza-sada` | Монтеррей | `tec-monterrey` |
+| 34 | Ассис Шатобриан | `assis-chateaubriand` | Сан-Паулу | `masp` |
+| 35 | Сисилло Матараццо | `ciccillo-matarazzo` | Сан-Паулу | `mam-sao-paulo` |
+| 36 | Сидни Майер | `sidney-myer` | Мельбурн | `myer-music-bowl` |
+| 37 | Кадзуо Инамори | `kazuo-inamori` | Киото | `kyoto-prize` |
+| 38 | Ю Ильхан | `yu-il-han` | Сеул | `yuhan-corporation` |
+| 39 | Ким Мандок | `kim-man-deok` | Чеджу | `jeju-mandeok` |
+| 40 | Джулиус Розенвальд | `julius-rosenwald` | Чикаго | `rosenwald-schools` |
 
 ## Стек проекта (кратко)
 
@@ -220,14 +273,30 @@
 - **Запрещено** автоматически после правок делать `git push`, force-push, `gh` upload, MCP `push_files` / `create_or_update_file` и любой другой выгрузку в GitHub.
 - **Выгрузка в GitHub — только по явной просьбе пользователя** («залей на GitHub», «экспортируй», «запушь», «обнови репозиторий» и т.п.).
 - Локальный `git commit` — тоже только если пользователь просит зафиксировать/закоммитить, либо как шаг внутри явного запроса на выгрузку.
+- При выгрузке **обязательно включать** новые файлы из `public/portraits`, `public/legacy`, `src/assets/portraits`, `src/assets/legacy-photos` (иначе на проде снова 404).
 - Промежуточные локальные бэкапы (папка baseline) **не** равны обновлению GitHub.
+
+## Сборка / деплой
+
+- Target: **Cloudflare** — `vite.config.ts`: `nitro: { preset: "cloudflare-module" }`.
+- Локально: `npm run build` → артефакты в `.output/` (public + server).
+- Медиа в репо (см. §3) — часть деплоя; не рассчитывать на hotlink «чтобы быстрее».
 
 ## Локальные бэкапы (жёсткое правило)
 
 | Роль | Путь | Можно удалять? |
 |------|------|----------------|
 | **№1 — неприкасаемый** | `/Users/dmitry/vestnik-for-grok-baseline-github-2026-07-13` | **НЕТ. Никогда. Ни сейчас, ни в будущем.** Не удалять, не перезаписывать, не «чистить». |
-| **№2 — промежуточный** (актуальная точка: после меценатов 1–25, замена фото «Наследие»/«Лица», обрезки без подложки где возможно) | `/Users/dmitry/vestnik-for-grok-baseline-after-patrons-1-25-2026-07-14` | Только по явной просьбе пользователя |
+| **№2 — промежуточный 1** (после меценатов 1–25, ранние правки портретов/наследия) | `/Users/dmitry/vestnik-for-grok-baseline-after-patrons-1-25-2026-07-14` | Только по явной просьбе пользователя |
+| **№3 — «Промежуточный бэкап 2»** (актуальная точка 2026-07-15: меценаты 1–40; география с селекторами и склонениями; правки UI/AR/ZH/подвала/кода мецената; хроносорт Лица/Наследие) | `/Users/dmitry/vestnik-for-grok-Промежуточный-бэкап-2` | Только по явной просьбе пользователя |
 
-Агенту **запрещено** удалять первый бэкап по любой причине (в т.ч. «освободить место», «заменить актуальным»).
+Агенту **запрещено** удалять первый бэкап по любой причине (в т.ч. «освободить место», «заменить актуальным»).  
+Предыдущие промежуточные бэкапы **не удалять** при создании новых — только по явной просьбе пользователя.
+
+Восстановление «Промежуточный бэкап 2»:
+```bash
+rsync -a --delete --exclude node_modules \
+  "/Users/dmitry/vestnik-for-grok-Промежуточный-бэкап-2/" \
+  "/Users/dmitry/vestnik-for-grok/"
+```
 

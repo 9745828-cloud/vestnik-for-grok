@@ -52,35 +52,119 @@ function romanToInt(roman: string): number {
 }
 
 /**
- * Sort key for legacy.year strings.
- * Supports: "1898", "1898 — 1912", "IX век", "XVIII — XIX век", "ок. 800 — 880", "70 — 8 до н. э." / "BC".
+ * Sort key for legacy.year strings (RU / EN / AR / ZH).
+ * Supports: "1898", "1898 — 1912", "IX век", "9th century", "9世纪", "القرن التاسع",
+ * "ок. 800 — 880", BC markers. Prefer 4-digit years over century labels when both present.
  * BC years are negative. Unparsable → large positive (sort last).
  */
 function foundedYearSortKey(year: string): number {
-  const isBC = /до н\. ?э\.|BC|BCE|ق\.م|公元前/i.test(year);
+  const s = year.trim();
+  const isBC =
+    /до н\.?\s*э\.|BC|BCE|ق\.?\s*م\.?|قبل الميلاد|公元前/i.test(s);
 
-  // Roman century: "IX век", "XVIII в."
-  const romCent = year.match(/\b([IVXLCDM]+)\s*(?:век|в\.|century)/i);
+  const centuryApprox = (century: number) => {
+    if (century <= 0) return 100_000;
+    const approx = (century - 1) * 100 + 1;
+    return isBC ? -approx : approx;
+  };
+
+  // Arabic decade + century: "ثمانينيات القرن 19 — 1897" → 1880
+  // (must run before bare 4-digit match so the end year 1897 does not win)
+  const arDec = s.match(
+    /(عشري|عشرين|ثلاثيني|أربعيني|خمسيني|ستيني|سبعيني|ثمانيني|تسعيني)ات[\s\S]*?القرن\s*(\d{1,2}|العشرين|التاسع عشر)/,
+  );
+  if (arDec) {
+    const decadeMap: Record<string, number> = {
+      عشري: 0,
+      عشرين: 20,
+      ثلاثيني: 30,
+      أربعيني: 40,
+      خمسيني: 50,
+      ستيني: 60,
+      سبعيني: 70,
+      ثمانيني: 80,
+      تسعيني: 90,
+    };
+    const d = decadeMap[arDec[1]] ?? 0;
+    let cent = 19;
+    if (/العشرين/.test(arDec[2])) cent = 20;
+    else if (/التاسع عشر/.test(arDec[2])) cent = 19;
+    else cent = parseInt(arDec[2], 10) || 19;
+    return (cent - 1) * 100 + d;
+  }
+
+  // Prefer first explicit calendar year (3–4 digits)
+  // e.g. "1880-е — 1897", "أربعينيات 1540 — 1548", "1540s — 1548" → 1540
+  const y4 = s.match(/\d{4}/);
+  if (y4) {
+    const n = parseInt(y4[0], 10);
+    return isBC ? -n : n;
+  }
+
+  const y3 = s.match(/\b\d{3}\b/);
+  if (y3 && !/قرن|век|century|世纪/i.test(s)) {
+    const n = parseInt(y3[0], 10);
+    return isBC ? -n : n;
+  }
+
+  // Chinese century: "9世纪", "15世纪", "18世纪末"
+  const zhCentEnd = s.match(/(\d{1,2})\s*世纪末/);
+  if (zhCentEnd) {
+    // end of century ≈ C*100 (e.g. 18世纪末 → 1800)
+    const c = parseInt(zhCentEnd[1], 10);
+    return isBC ? -(c * 100) : c * 100;
+  }
+  const zhCent = s.match(/(\d{1,2})\s*世纪/);
+  if (zhCent) return centuryApprox(parseInt(zhCent[1], 10));
+
+  // Arabic: "القرن التاسع", "القرن الخامس عشر", …
+  if (/القرن/.test(s)) {
+    const AR_CENT: [string, number][] = [
+      ["الحادي والعشرين", 21],
+      ["العشرين", 20],
+      ["التاسع عشر", 19],
+      ["الثامن عشر", 18],
+      ["السابع عشر", 17],
+      ["السادس عشر", 16],
+      ["الخامس عشر", 15],
+      ["الرابع عشر", 14],
+      ["الثالث عشر", 13],
+      ["الثاني عشر", 12],
+      ["الحادي عشر", 11],
+      ["العاشر", 10],
+      ["التاسع", 9],
+      ["الثامن", 8],
+      ["السابع", 7],
+      ["السادس", 6],
+      ["الخامس", 5],
+      ["الرابع", 4],
+      ["الثالث", 3],
+      ["الثاني", 2],
+      ["الأول", 1],
+    ];
+    for (const [word, c] of AR_CENT) {
+      if (s.includes(word)) return centuryApprox(c);
+    }
+    // "القرن 19" with digits
+    const arNum = s.match(/القرن\s*(\d{1,2})/);
+    if (arNum) return centuryApprox(parseInt(arNum[1], 10));
+  }
+
+  // Roman century: "IX век", "XVIII в.", "IX century"
+  const romCent = s.match(/\b([IVXLCDM]+)\s*(?:век|в\.|century)/i);
   if (romCent) {
     const century = romanToInt(romCent[1]);
-    if (century > 0) {
-      const approx = (century - 1) * 100 + 1;
-      return isBC ? -approx : approx;
-    }
+    if (century > 0) return centuryApprox(century);
   }
 
-  // Numeric century without a 4-digit year: "19 век", "9th century"
-  if (!/\d{4}/.test(year)) {
-    const numCent = year.match(/\b(\d{1,2})\s*(?:-?(?:й|ый|е|st|nd|rd|th))?\s*(?:век|в\.|century)/i);
-    if (numCent) {
-      const century = parseInt(numCent[1], 10);
-      const approx = (century - 1) * 100 + 1;
-      return isBC ? -approx : approx;
-    }
-  }
+  // Numeric century: "19 век", "9th century"
+  const numCent = s.match(
+    /\b(\d{1,2})\s*(?:-?(?:й|ый|е|st|nd|rd|th))?\s*(?:век|в\.|century)/i,
+  );
+  if (numCent) return centuryApprox(parseInt(numCent[1], 10));
 
-  // First year number (1–4 digits)
-  const m = year.match(/\d{1,4}/);
+  // Fallback: any number
+  const m = s.match(/\d{1,4}/);
   if (!m) return 100_000;
   const n = parseInt(m[0], 10);
   return isBC ? -n : n;
