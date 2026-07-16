@@ -4,7 +4,9 @@ Source: /Users/dmitry/vestnik-for-grok
 
 State: after patrons №1–40; geography selectors + pluralization;
 footer polish; kod quiz UI; AR/ZH menu/UI; chronological sort;
-homepage stats 130+/80; Temirkanov living-faces video (public/videos/temirkanov.mp4).
+homepage stats 130+/80; all 12 homepage living-faces videos local
+in public/videos/*.mp4 (Git LFS; no Lovable __l5e).
+Commit: 5e6b2f4 on origin/main.
 
 --- BACKUPS POLICY ---
 1) FIRST / IMMUTABLE:
