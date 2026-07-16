@@ -10,35 +10,25 @@ import {
   Dialog,
   DialogContent,
 } from "@/components/ui/dialog";
-import mamontovVideo from "@/assets/videos/mamontov.mp4.asset.json";
-import shuvalovVideo from "@/assets/videos/shuvalov.mp4.asset.json";
-import soldatenkovVideo from "@/assets/videos/soldatenkov.mp4.asset.json";
-import gulievVideo from "@/assets/videos/guliev.mp4.asset.json";
-import maecenasVideo from "@/assets/videos/maecenas.mp4.asset.json";
-import prokhorovVideo from "@/assets/videos/prokhorov.mp4.asset.json";
-import alMamunVideo from "@/assets/videos/al-mamun.mp4.asset.json";
-import alchevskayaVideo from "@/assets/videos/alchevskaya.mp4.asset.json";
-import carnegieVideo from "@/assets/videos/carnegie.mp4.asset.json";
-import nobelVideo from "@/assets/videos/nobel.mp4.asset.json";
-import galimzyanovVideo from "@/assets/videos/galimzyanov.mp4.asset.json";
 import { resolvePortrait } from "@/lib/media";
 
-/** Local video under public/videos — deploy-safe path (same pattern as portraits/legacy). */
-const TEMIRKANOV_VIDEO = "/videos/temirkanov.mp4";
-
+/**
+ * Local videos under public/videos — deploy-safe paths (same pattern as portraits/legacy).
+ * Downloaded from Lovable __l5e CDN; do not use .asset.json /__l5e URLs here.
+ */
 const LIVING_FACES = [
-  { slug: "maecenas", video: maecenasVideo.url },
-  { slug: "al-mamun", video: alMamunVideo.url },
-  { slug: "shuvalov", video: shuvalovVideo.url },
-  { slug: "prokhorov", video: prokhorovVideo.url },
-  { slug: "soldatenkov", video: soldatenkovVideo.url },
-  { slug: "mamontov", video: mamontovVideo.url },
-  { slug: "alchevskaya", video: alchevskayaVideo.url },
-  { slug: "guliev", video: gulievVideo.url },
-  { slug: "carnegie", video: carnegieVideo.url },
-  { slug: "alfred-nobel", video: nobelVideo.url },
-  { slug: "galimzyanov-asgat", video: galimzyanovVideo.url },
-  { slug: "temirkanov", video: TEMIRKANOV_VIDEO },
+  { slug: "maecenas", video: "/videos/maecenas.mp4" },
+  { slug: "al-mamun", video: "/videos/al-mamun.mp4" },
+  { slug: "shuvalov", video: "/videos/shuvalov.mp4" },
+  { slug: "prokhorov", video: "/videos/prokhorov.mp4" },
+  { slug: "soldatenkov", video: "/videos/soldatenkov.mp4" },
+  { slug: "mamontov", video: "/videos/mamontov.mp4" },
+  { slug: "alchevskaya", video: "/videos/alchevskaya.mp4" },
+  { slug: "guliev", video: "/videos/guliev.mp4" },
+  { slug: "carnegie", video: "/videos/carnegie.mp4" },
+  { slug: "alfred-nobel", video: "/videos/nobel.mp4" },
+  { slug: "galimzyanov-asgat", video: "/videos/galimzyanov.mp4" },
+  { slug: "temirkanov", video: "/videos/temirkanov.mp4" },
 ];
 
 export const Route = createFileRoute("/")({
