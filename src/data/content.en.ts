@@ -4158,7 +4158,7 @@ export const GEO: GeoCity[] = [
     personSlugs: ["yu-il-han"] },
   { city: "Jeju", country: "Korea", x: 85.1, y: 31.4, story: "Kim Man-deok — rice for the starving, a symbol of personal generosity.",
     personSlugs: ["kim-man-deok"] },
-  { city: "Chicago", country: "United States", x: 25.7, y: 26.7, story: "Julius Rosenwald — Sears and Rosenwald Schools in the U.S. South.",
+  { city: "Chicago", country: "USA", x: 25.7, y: 26.7, story: "Julius Rosenwald — Sears and Rosenwald Schools in the U.S. South.",
     personSlugs: ["julius-rosenwald"] },
 ];
 // ===== Legacy =====

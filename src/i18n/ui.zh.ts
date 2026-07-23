@@ -203,14 +203,14 @@ const UI_ZH: Record<string, string> = {
   // Geography panel (selectors)
   "Find on the map": "在地图上查找",
   "Country and city": "国家与城市",
-  "Choose a country, then a city — the globe will focus there and patrons of that place will appear below.": "请先选择国家，再选择城市——地球仪将聚焦该地，下方将显示该地的赞助人。",
+  "Choose a country, then a city — the globe will focus there and patrons of that region will appear below.": "请先选择国家，再选择城市——地球仪将聚焦该地，下方将显示该地区的赞助人。",
   "Country / region": "国家 / 地区",
   "Select a country…": "选择国家…",
   "City": "城市",
   "Select a city…": "选择城市…",
   "Select a country first": "请先选择国家",
   "Select a country and city, or click a marker on the globe": "请选择国家和城市，或点击地球仪上的标记",
-  "Patrons of this place": "此地的赞助人",
+  "Patrons of this region": "该地区的赞助人",
   "No patron cards for this city yet.": "该城市暂无人物卡片。",
   "Learn more →": "了解更多 →",
 

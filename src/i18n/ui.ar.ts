@@ -203,14 +203,14 @@ const UI_AR: Record<string, string> = {
   // Geography panel (selectors)
   "Find on the map": "ابحث على الخريطة",
   "Country and city": "البلد والمدينة",
-  "Choose a country, then a city — the globe will focus there and patrons of that place will appear below.": "اختر البلد ثم المدينة — ستركز الكرة الأرضية على المكان وتظهر أدناه رعاة هذا الموقع.",
+  "Choose a country, then a city — the globe will focus there and patrons of that region will appear below.": "اختر البلد ثم المدينة — ستركز الكرة الأرضية على المكان وتظهر أدناه رعاة هذه المنطقة.",
   "Country / region": "البلد / المنطقة",
   "Select a country…": "اختر بلداً…",
   "City": "المدينة",
   "Select a city…": "اختر مدينة…",
   "Select a country first": "اختر البلد أولاً",
   "Select a country and city, or click a marker on the globe": "اختر البلد والمدينة، أو انقر على علامة على الكرة الأرضية",
-  "Patrons of this place": "رعاة هذا المكان",
+  "Patrons of this region": "رعاة هذه المنطقة",
   "No patron cards for this city yet.": "لا توجد بطاقات رعاة لهذه المدينة بعد.",
   "Learn more →": "اعرف المزيد ←",
 

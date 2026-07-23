@@ -61,7 +61,7 @@ export function Footer() {
           <div className="lg:col-span-3">
             <div className="text-xs uppercase tracking-[0.2em] text-gold mb-4">{t("Контакты", "Contacts")}</div>
             <p className="text-sm text-cream/70">{t("Москва, Россия", "Moscow, Russia")}</p>
-            <p className="text-sm text-cream/70 mt-1 break-all">redaktsiya@vestnik-mecenata.ru</p>
+            <p className="text-sm text-cream/70 mt-1 break-all">redaktsiya@vestnikmecenata.ru</p>
 
             <blockquote className="mt-7 max-w-[22rem] border-s border-gold/25 ps-4">
               <p className="text-sm leading-relaxed text-cream/65 italic">

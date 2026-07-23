@@ -692,8 +692,8 @@ function Geo() {
             <div className="gold-divider my-4 w-16" />
             <p className="text-sm text-foreground/70 leading-relaxed mb-6">
               {t(
-                "Выберите страну, затем город — на глобусе откроется точка, ниже появятся меценаты этого места.",
-                "Choose a country, then a city — the globe will focus there and patrons of that place will appear below.",
+                "Выберите страну, затем город — на глобусе откроется точка, ниже появятся меценаты этого региона.",
+                "Choose a country, then a city — the globe will focus there and patrons of that region will appear below.",
               )}
             </p>
 
@@ -776,7 +776,7 @@ function Geo() {
                 <div className="mt-7">
                   <div className="text-[10px] tracking-[0.3em] uppercase text-gold mb-3 flex items-center gap-2">
                     <Users className="h-3 w-3" />
-                    {t("Меценаты этого места", "Patrons of this place")}
+                    {t("Меценаты этого региона", "Patrons of this region")}
                     {peopleHere.length > 0 && (
                       <span className="ml-auto rounded-full border border-gold/50 bg-cream/80 px-2 py-0.5 text-[10px] tracking-normal text-bordo font-sans">
                         {peopleHere.length}

@@ -1,22 +1,26 @@
-Intermediate backup 2 of Vestnik Mecenata
-Updated: 2026-07-16 MSK
+Intermediate backup 3 of Vestnik Mecenata
+Updated: 2026-07-23 MSK
 Source: /Users/dmitry/vestnik-for-grok
 
 State: after patrons №1–40; geography selectors + pluralization;
-footer polish; kod quiz UI; AR/ZH menu/UI; chronological sort;
-homepage stats 130+/80; all 12 homepage living-faces videos local
-in public/videos/*.mp4 (Git LFS; no Lovable __l5e).
-Commit: 5e6b2f4 on origin/main.
+footer polish (email vestnikmecenata.ru); kod quiz UI; AR/ZH menu/UI;
+chronological sort; homepage stats 130+/80; all 12 homepage
+living-faces videos local in public/videos/*.mp4 (Git LFS);
+GEO stats aligned RU/EN/AR/ZH (80 cities, 36 countries);
+geography copy «региона» / region; AR/ZH GEO Athens + Gojdu;
+Chicago country label USA.
 
 --- BACKUPS POLICY ---
 1) FIRST / IMMUTABLE:
    /Users/dmitry/vestnik-for-grok-baseline-github-2026-07-13
 2) Intermediate (patrons 1–25 era):
    /Users/dmitry/vestnik-for-grok-baseline-after-patrons-1-25-2026-07-14
-3) THIS intermediate backup 2:
+3) Intermediate backup 2 (2026-07-16/17):
    /Users/dmitry/vestnik-for-grok-Промежуточный-бэкап-2
+4) THIS intermediate backup 3:
+   /Users/dmitry/vestnik-for-grok-Промежуточный-бэкап-3
 
 Restore:
   rsync -a --delete --exclude node_modules \
-    "/Users/dmitry/vestnik-for-grok-Промежуточный-бэкап-2/" \
+    "/Users/dmitry/vestnik-for-grok-Промежуточный-бэкап-3/" \
     "/Users/dmitry/vestnik-for-grok/"
