@@ -1,24 +1,25 @@
 Intermediate backup 3 of Vestnik Mecenata
-Updated: 2026-07-23 MSK
+Updated: 2026-07-30 MSK
 Source: /Users/dmitry/vestnik-for-grok
 
-State: after patrons №1–40; geography selectors + pluralization;
-footer polish (email vestnikmecenata.ru); kod quiz UI; AR/ZH menu/UI;
-chronological sort; homepage stats 130+/80; all 12 homepage
-living-faces videos local in public/videos/*.mp4 (Git LFS);
-GEO stats aligned RU/EN/AR/ZH (80 cities, 36 countries);
-geography copy «региона» / region; AR/ZH GEO Athens + Gojdu;
-Chicago country label USA.
+State:
+- Patrons part 3 №1–42 + Edmond de Rothschild
+- Part 4 (Russian Empire) №1–5: Naryshkins, Nosov, Tolmachyov, Ikavits (Tambov)
+- NEWS / Пульс: July 2026 batch (8 items, dates corrected)
+- GEO: Tambov + Krasnaya Sloboda + prior cities
+- Media local for available portraits/legacy; some part-4 media still manual
+
+GitHub: 9745828-cloud/vestnik-for-grok (main)
 
 --- BACKUPS POLICY ---
 1) FIRST / IMMUTABLE:
    /Users/dmitry/vestnik-for-grok-baseline-github-2026-07-13
-2) Intermediate (patrons 1–25 era):
-   /Users/dmitry/vestnik-for-grok-baseline-after-patrons-1-25-2026-07-14
-3) Intermediate backup 2 (2026-07-16/17):
-   /Users/dmitry/vestnik-for-grok-Промежуточный-бэкап-2
-4) THIS intermediate backup 3:
+2) THIS intermediate backup 3 (current restore point):
    /Users/dmitry/vestnik-for-grok-Промежуточный-бэкап-3
+
+Deleted earlier by user:
+- baseline-after-patrons-1-25
+- Промежуточный-бэкап-2
 
 Restore:
   rsync -a --delete --exclude node_modules \

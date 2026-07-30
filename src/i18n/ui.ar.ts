@@ -206,7 +206,6 @@ const UI_AR: Record<string, string> = {
   "Choose a country, then a city — the globe will focus there and patrons of that region will appear below.": "اختر البلد ثم المدينة — ستركز الكرة الأرضية على المكان وتظهر أدناه رعاة هذه المنطقة.",
   "Country / region": "البلد / المنطقة",
   "Select a country…": "اختر بلداً…",
-  "City": "المدينة",
   "Select a city…": "اختر مدينة…",
   "Select a country first": "اختر البلد أولاً",
   "Select a country and city, or click a marker on the globe": "اختر البلد والمدينة، أو انقر على علامة على الكرة الأرضية",
