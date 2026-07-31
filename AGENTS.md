@@ -51,8 +51,10 @@
 
 ### 3. Медиа — канонический метод (жёстко)
 
-**Принцип:** новые фотографии **не через hotlink**. Файл кладётся **в репозиторий** (папки проекта), коммитится, уезжает на хостинг при деплое из git.  
+**Принцип:** новые фотографии **не через hotlink**. Файл кладётся **в репозиторий**, **нормализуется в web-JPEG**, коммитится, уезжает на хостинг при деплое из git.  
 В `content*.ts` в полях `portrait` / `image` — **только локальные пути** вида `"/portraits/…"` / `"/legacy/…"`, **никогда** `https://upload.wikimedia.org/…`, CDN, `/__l5e/…`.
+
+**Цель:** на проде (`vestnikmecenata.ru`, Apache + бандл `/assets/*`) карточки «Лица» и «Наследие» **быстро показывают фото**, а не цветной фон / «Портрет не сохранился».
 
 #### 3.1. Куда класть файлы (два каталога, одно имя)
 
@@ -61,8 +63,8 @@
 | Портрет («Лица») | `public/portraits/{slug}.jpg` | `src/assets/portraits/{slug}.jpg` |
 | Наследие | `public/legacy/{legacy-slug}.jpg` | `src/assets/legacy-photos/{legacy-slug}.jpg` |
 
-- Имя файла = `slug` сущности (kebab-case), расширение предпочтительно `.jpg` (допустимы `.png` / `.webp` при необходимости — тогда то же имя в данных).
-- **Всегда оба места.** После скачивания/получения от пользователя:
+- Имя файла = `slug` сущности (kebab-case), **по умолчанию только `.jpg`**.
+- **Всегда оба места** (одинаковое содержимое после нормализации):
   ```bash
   # портрет
   cp public/portraits/{slug}.jpg src/assets/portraits/{slug}.jpg
@@ -72,42 +74,91 @@
 - В данных:
   - `portrait: "/portraits/{slug}.jpg"`
   - `image: "/legacy/{legacy-slug}.jpg"`
-- UI: `src/lib/media.ts` (`resolvePortrait` / `resolveLegacyImage`) через `import.meta.glob` подставляет бандл `/assets/*-hash.ext`. Страницы: `litsa.tsx`, `litsa.$slug.tsx`, `nasledie.tsx`, `index.tsx` — **не** вставлять raw URL мимо резолвера.
-- **Запрещено:** hotlink Wikimedia/внешних CDN; пути Lovable `/__l5e/…`; импорты только `*.asset.json` без реального файла в `public/` + `src/assets/`; заглушки и чужие портреты.
+- UI: `src/lib/media.ts` (`resolvePortrait` / `resolveLegacyImage`) через `import.meta.glob` подставляет бандл `/assets/*-hash.ext`.  
+  Резолвер смотрит: `src/assets/portraits/*`, `src/assets/persons/*`, `src/assets/portrait-*`, `src/assets/legacy-photos/*`.  
+  Страницы: `litsa.tsx`, `litsa.$slug.tsx`, `nasledie.tsx`, `index.tsx` — **не** вставлять raw URL мимо резолвера.
+- **Предпочтительно string-пути** `/portraits/…` / `/legacy/…` + файлы в обоих каталогах (см. таблицу).  
+  Прямые `import img from "@/assets/persons/…"` допустимы для старых карточек, но **для новых не заводить** — только канон из таблицы.
+- **Запрещено:** hotlink Wikimedia/внешних CDN; пути Lovable `/__l5e/…` и `*.asset.json` без реального файла; заглушки и чужие портреты; класть файл только в `public/` или только в `src/assets/`.
 
-#### 3.2. Откуда брать файл
+#### 3.2. Нормализация перед записью в репо (обязательно)
 
-1. **От пользователя** (Desktop / «Grok build/Лица|Наследие» и т.п.) — конвертировать в JPEG при необходимости (`sips` / sharp), положить по путям выше.
+Скачанный/полученный оригинал **нельзя** класть «как есть», если это PNG/WebP/огромный JPEG/файл с чужим расширением.  
+**Канон для сайта — JPEG**, длинная сторона **≤ 1100 px**, целевой вес **≤ ~400 KB** (жёсткий потолок **~800 KB**; 1–4 MB — брак).
+
+На macOS (есть `sips`):
+
+```bash
+# Любой вход (jpg/png/webp/heic) → web-JPEG
+sips -s format jpeg -s formatOptions 82 -Z 1100 \
+  "/path/to/source" --out "public/portraits/{slug}.jpg"
+
+# Проверка
+file "public/portraits/{slug}.jpg"   # должно быть: JPEG image data
+ls -la "public/portraits/{slug}.jpg" # ориентир: десятки–сотни KB, не мегабайты
+
+cp "public/portraits/{slug}.jpg" "src/assets/portraits/{slug}.jpg"
+```
+
+То же для наследия → `public/legacy/{slug}.jpg` + `src/assets/legacy-photos/{slug}.jpg`.
+
+**Расширение = реальный формат (магические байты):**
+
+| `file` говорит | Расширение в репо и в `content*.ts` |
+|----------------|-------------------------------------|
+| JPEG image data | `.jpg` |
+| PNG image data | **перекодировать в JPEG** (не оставлять `.png`, тем более не называть PNG как `.jpg`/`.webp`) |
+| WebP / прочее | **перекодировать в JPEG** |
+
+Типичный брак, из‑за которого на проде «нет фото»:
+- PNG лежит как `something.webp` или `something.jpg` → браузер не декодирует → `onError` → «Портрет не сохранился»;
+- JPEG 2–4 MB × 100+ карточек с `loading="eager"` → очередь, таймауты, карточки долго с пустым цветным фоном (в «Лицах» это особенно заметно; «Наследие» легче переносит).
+
+Мини-проверка «не HTML и не пустышка»:
+```bash
+file public/portraits/{slug}.jpg | grep -qi jpeg || echo "FAIL: not jpeg"
+# размер > 8 KB и < 800 KB
+```
+
+#### 3.3. Откуда брать файл
+
+1. **От пользователя** (Desktop / «Grok build/Лица|Наследие») — прогнать через §3.2, положить в оба каталога.
 2. **Скачать агентом** (Wikimedia Commons, официальные сайты, свободные фото):
-   - скачать **на диск** в `public/…`, затем `cp` в `src/assets/…`;
+   - скачать во временный файл → **нормализовать** (§3.2) → `public/…` + `cp` в `src/assets/…`;
    - User-Agent нормальный; при rate limit — паузы, `Special:FilePath`;
-   - проверить: размер > ~8 KB, `file` → JPEG/PNG/WebP (не HTML-страница ошибки).
+   - отбраковать HTML-страницы ошибок, файлы &lt; ~8 KB, файлы без валидного image magic.
 3. Если скачать нельзя — **не** подставлять hotlink/заглушку: тексты довести, в ответе блок «Медиа: требуется ручная загрузка» (правило 3 в начале файла).
 
-#### 3.3. Подписи (credit)
+#### 3.4. Подписи (credit)
 
 - `portraitCaption` / `imageCredit` — по реальному источнику.
 - Если автор/лицензия **неизвестны** — **Wikimedia Commons** (не «Архив редакции»).  
   RU: `Портрет. Wikimedia Commons` · EN: `Portrait. Wikimedia Commons` · AR/ZH: та же логика.  
   Если источник известен (Art UK, IAU, официальный сайт) — указывать его.
 
-#### 3.4. Почему так (кратко, для агента)
+#### 3.5. Почему так (кратко, для агента)
 
 - Hotlink на проде хрупкий (блокировки, 403, referrer).
-- На `vestnikmecenata.ru` (Apache) пути `/portraits/*` и `/legacy/*` работают **только если файл лежит в web root** после деплоя. Нет файла в репо → 404 на проде, хотя локально `vite dev` мог «скрывать» проблему.
-- Дубль в `src/assets/…` + `media.ts` даёт бандл в `/assets/*` при `npm run build` (Cloudflare/Nitro) — страховка, если статика `public/` на каком-то хосте не копируется.
-- Медиа **в git** → при деплое из репозитория подтягиваются автоматически (не отдельная ручная FTP-папка «на память»).
+- На `vestnikmecenata.ru` (Apache) `/portraits/*` и `/legacy/*` работают **только если файл в web root** после деплоя.
+- Дубль `src/assets/…` + `media.ts` → бандл `/assets/*-hash.ext` при `npm run build` — основной путь картинок в SSR/клиенте.
+- **Вес и формат решают UX «Лиц»:** сетка ~140 карточек; тяжёлые/битые портреты дают пустые плашки, хотя «Наследие» ещё выглядит нормально.
+- В UI «Лица» первые ~12 портретов — `loading="eager"`, остальные — `lazy`; это не отменяет обязанность агента класть **лёгкие JPEG**.
+- Медиа **в git** → при деплое из репозитория подтягиваются автоматически (не отдельная FTP-папка «на память»).
+- После правок медиа нужен **полный rebuild + деплой** (новый хеш в `/assets/…`); одной подкладки файла на Apache без новой сборки часто недостаточно, если UI уже смотрит в бандл.
 
-#### 3.5. Чеклист медиа при добавлении/замене
+#### 3.6. Чеклист медиа при добавлении/замене
 
 ```
-[ ] Файл в public/portraits|legacy/{slug}.jpg (реальный image, не HTML)
-[ ] Та же копия в src/assets/portraits|legacy-photos/{slug}.jpg
-[ ] В content.ts / .en / .ar / .zh: путь /portraits/… или /legacy/…, НЕ https://
-[ ] Нет /__l5e/ и hotlink
+[ ] Источник скачан/получен; не hotlink и не /__l5e/
+[ ] Нормализация: JPEG, длинная сторона ≤ 1100 px, вес ≲ 400 KB (макс. ~800 KB)
+[ ] file … → "JPEG image data" (расширение .jpg совпадает с содержимым)
+[ ] public/portraits|legacy/{slug}.jpg
+[ ] src/assets/portraits|legacy-photos/{slug}.jpg  (байт-в-байт та же копия)
+[ ] content.ts / .en / .ar / .zh: "/portraits/…" или "/legacy/…", НЕ https://
 [ ] portraitCaption / imageCredit обновлены
-[ ] UI идёт через resolvePortrait / resolveLegacyImage (не обходить)
-[ ] После деплоя: GET https://…/portraits|legacy/{file} → 200 image/*
+[ ] UI через resolvePortrait / resolveLegacyImage (не обходить)
+[ ] Нет multi-MB «сырых» сканов/PNG-с-чужим-расширением
+[ ] После деплоя: карточка /litsa|/nasledie показывает фото; GET /assets/…-hash.jpg → 200 image/jpeg
 ```
 
 ### 4. Обязательные правки в данных (4 языковых файла)
@@ -143,6 +194,15 @@
 ```
 
 Список «Лица» берётся из статики через `useLitsa()` → `useContent().PERSONS` (WP только для опциональных медиа).
+
+**Стиль `bio` (канон RU, вычитка 2026-07):**
+- Один абзац, **~400–700** знаков (допустимо 350–850; короче 300 / длиннее 900 — брак).
+- 3–6 предложений: кто + роль → ключевые деяния меценатства с фактами → след / институция.
+- Голос культурно-исторического журнала: живо, без канцелярита («является», «осуществлял», «данный») и без пафосной гиперболы.
+- Не дублировать `short` дословно; не копировать целиком `impactLong` (bio — факты, impactLong — смысл).
+- Без CV «родился…», без мета-редактуры («отдельная карточка нужна…»), без списка городов-лозунгов.
+- Имена учреждений, цифры, годы — только из источников; не выдумывать.
+- После правки RU — синхронизировать смысл в EN/AR/ZH (не оставлять расхождение).
 
 #### 4.2. GEO (раздел «География добра» + глобус)
 
@@ -205,7 +265,7 @@
 
 ```
 [ ] Строка не зелёная в Excel
-[ ] Медиа: §3 — public/ + src/assets/ (оба), пути /portraits|/legacy, без hotlink/__l5e
+[ ] Медиа: §3 — JPEG ≤1100px / ≲400KB, magic=расширение; public/ + src/assets/ (оба); /portraits|/legacy; без hotlink/__l5e
 [ ] PERSONS × 4 (ts, en, ar, zh) — ar/zh НЕ на английском
 [ ] GEO: city + personSlugs × 4 — города/story переведены
 [ ] LEGACY × 4 — title/short/full переведены
@@ -271,7 +331,7 @@
 ## База кода (актуально)
 
 Локальный проект: GitHub `9745828-cloud/vestnik-for-grok` (main) + добавленные меценаты.  
-Из Excel-таблицы в коде: **часть 3 №1–42** + **Эдмон де Ротшильд**; **часть 4 (РИ) №1–5** (Нарышкины … Икавитц).
+Из Excel-таблицы в коде: **часть 3 №1–42** + **Эдмон де Ротшильд**; **часть 4 (РИ) №1–20** (Нарышкины … Н. А. Терещенко).
 
 ### Уже добавленные из таблицы (slug’ы)
 
@@ -320,6 +380,21 @@
 | **ч.4 №3** | А. М. Носов | `andrey-mikhailovich-nosov` | Тамбов | `nosov-almshouse` |
 | **ч.4 №4** | А. И. Толмачёв | `alexander-ivanovich-tolmachyov` | Тамбов | `tolmachyov-schools` |
 | **ч.4 №5** | Э. Х. Икавитц | `eduard-ikavits` | Тамбов | `ikavits-zemstvo-medicine` |
+| **ч.4 №6** | А. Л. Штиглиц | `alexander-stieglitz` | Санкт-Петербург | `stieglitz-school` |
+| **ч.4 №7** | С. М. Третьяков | `sergey-tretyakov` | Москва | `sergey-tretyakov-collection` |
+| **ч.4 №8** | Н. Ф. фон Мекк | `nadezhda-von-meck` | Москва | `von-meck-music` |
+| **ч.4 №9** | М. П. Беляев | `mitrofan-belyaev` | Санкт-Петербург | `belyaev-russian-concerts` |
+| **ч.4 №10** | Н. А. Алексеев | `nikolay-alekseev` | Москва | `alekseev-psychiatric-hospital` |
+| **ч.4 №11** | П. И. Губонин | `petr-gubonin` | Москва | `polytechnical-museum` |
+| **ч.4 №12** | Ф. В. Чижов | `fyodor-chizhov` | Кострома | `chizhov-kostroma-schools` |
+| **ч.4 №13** | И. А. Лямин | `ivan-lyamin` | Москва / Яхрома | `yakhroma-trinity-cathedral` |
+| **ч.4 №14** | В. А. Кокорев | `vasily-kokorev` | Москва | `kokorev-podvorye` |
+| **ч.4 №15** | С. Т. Морозов | `sergey-t-morozov` | Москва | `kustar-museum` |
+| **ч.4 №16** | И. Е. Цветков | `ivan-tsvetkov` | Москва | `tsvetkov-gallery` |
+| **ч.4 №17** | А. И. Хлудов | `alexey-khludov` | Москва | `khludov-psalter` |
+| **ч.4 №18** | Г. И. Хлудов | `gerasim-khludov` | Москва | `khludov-syromyatniki-almshouse` |
+| **ч.4 №19** | Д. И. Хлудов | `david-khludov` | Москва | `bobrenev-monastery` |
+| **ч.4 №20** | Н. А. Терещенко | `nikolay-tereshchenko` | Киев / Глухов | `tereshchenko-kyiv-patronage` |
 
 ## Стек проекта (кратко)
 

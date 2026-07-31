@@ -137,9 +137,9 @@ function Litsa() {
                     <img
                       src={resolvePortrait(p.portrait)}
                       alt={t(`Портрет: ${p.name}`, `Portrait: ${p.name}`)}
-                      loading="eager"
+                      loading={i < 12 ? "eager" : "lazy"}
                       decoding="async"
-                      className="w-full h-full object-cover"
+                      className={`absolute inset-0 h-full w-full ${p.portraitFit === "contain" ? "object-contain" : "object-cover"}`}
                       style={{ objectPosition: p.portraitPosition ?? "center" }}
                       onError={(e) => {
                         const img = e.currentTarget as HTMLImageElement;
@@ -150,7 +150,7 @@ function Litsa() {
                     />
                   ) : null}
 
-                  <div className="absolute inset-0 grain opacity-30" />
+                  <div className="absolute inset-0 grain opacity-30 pointer-events-none" />
 
                   <div data-fallback className="absolute inset-0 place-items-center hidden" style={{ display: p.portrait ? 'none' : 'grid' }}>
                     <div className="text-center px-6">

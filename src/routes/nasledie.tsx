@@ -270,9 +270,9 @@ function Nasledie() {
                       <img
                         src={resolveLegacyImage(it.image)}
                         alt={it.title}
-                        loading="eager"
+                        loading="lazy"
                         decoding="async"
-                        className={`w-full h-full ${it.imageFit === "contain" ? "object-contain" : "object-cover"}`}
+                        className={`absolute inset-0 h-full w-full ${it.imageFit === "contain" ? "object-contain" : "object-cover"}`}
                         style={{ objectPosition: it.imagePosition ?? "center top" }}
                         onError={(e) => {
                           const img = e.currentTarget as HTMLImageElement;
@@ -283,7 +283,7 @@ function Nasledie() {
                       />
                     ) : null}
 
-                    <div className="grain absolute inset-0 opacity-30" />
+                    <div className="grain absolute inset-0 opacity-30 pointer-events-none" />
 
                     <div data-fb className="absolute inset-0 place-items-center hidden" style={{ display: it.image ? 'none' : 'grid' }}>
                       {Icon && <Icon className="h-12 w-12 text-gold/90" />}
@@ -335,7 +335,7 @@ function Nasledie() {
                     <img
                       src={resolveLegacyImage(openItem.image)}
                       alt={openItem.title}
-                      className={`w-full h-full ${openItem.imageFit === "contain" ? "object-contain" : "object-cover"}`}
+                      className={`absolute inset-0 h-full w-full ${openItem.imageFit === "contain" ? "object-contain" : "object-cover"}`}
                       style={{ objectPosition: openItem.imagePosition ?? "center top" }}
                       onError={(e) => {
                         const img = e.currentTarget as HTMLImageElement;

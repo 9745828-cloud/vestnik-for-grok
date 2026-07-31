@@ -19,10 +19,42 @@ export const Route = createFileRoute("/azbuka")({
   component: Azbuka,
 });
 
+/** Latin parallels for Russian alphabet letters (helps ZH/AR readers). */
+const LETTER_LATIN: Record<string, string> = {
+  А: "A",
+  Б: "B",
+  В: "V",
+  Г: "G",
+  Д: "D",
+  Е: "E",
+  Ж: "Zh",
+  З: "Z",
+  И: "I",
+  К: "K",
+  Л: "L",
+  М: "M",
+  Н: "N",
+  О: "O",
+  П: "P",
+  Р: "R",
+  С: "S",
+  Т: "T",
+  У: "U",
+  Ф: "F",
+  Х: "Kh",
+  Ц: "Ts",
+  Ч: "Ch",
+  Щ: "Shch",
+  Э: "E",
+  Ю: "Yu",
+  Я: "Ya",
+};
+
 function Azbuka() {
   const t = useT();
   const GLOSSARY = useGlossary();
   const lang = useLang();
+  const showLatinHint = lang === "zh" || lang === "ar";
   useEffect(() => {
     if (typeof window === "undefined") return;
     const term = getFocusTarget("term-");
@@ -43,8 +75,18 @@ function Azbuka() {
 
       <section className="paper-bg">
         <div className="container mx-auto px-4 lg:px-8 py-20 md:py-28">
+          {showLatinHint && (
+            <p className="mb-10 max-w-3xl text-sm md:text-base text-foreground/70 leading-relaxed">
+              {t(
+                "Статьи расположены в порядке русского алфавита.",
+                "Entries are ordered by the Russian alphabet.",
+              )}
+            </p>
+          )}
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {GLOSSARY.map((g) => (
+            {GLOSSARY.map((g) => {
+              const latin = LETTER_LATIN[g.letter];
+              return (
               <article
                 key={g.term}
                 id={`term-${g.term}`}
@@ -54,13 +96,22 @@ function Azbuka() {
                   {g.letter}
                 </div>
                 <div className="relative">
-                  <div className="text-[10px] tracking-[0.3em] uppercase text-gold">{t("Буква", "Letter")} {g.letter}</div>
+                  <div className="text-[10px] tracking-[0.3em] uppercase text-gold">
+                    {t("Буква", "Letter")} {g.letter}
+                    {showLatinHint && latin ? (
+                      <span className="tracking-normal normal-case text-foreground/45">
+                        {" "}
+                        ({latin})
+                      </span>
+                    ) : null}
+                  </div>
                   <h3 className="mt-3 font-display text-3xl text-bordo">{g.term}</h3>
                   <div className="gold-divider my-4 w-12" />
                   <p className="text-sm text-foreground/80 leading-relaxed">{g.def}</p>
                 </div>
               </article>
-            ))}
+              );
+            })}
           </div>
 
         </div>

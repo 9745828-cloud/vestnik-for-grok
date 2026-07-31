@@ -233,5 +233,8 @@ const UI_AR: Record<string, string> = {
   // Quiz result CTAs
   "Recommended": "نوصي به",
   "Continue reading": "تابع القراءة",
+  "Entries are ordered by the Russian alphabet.": "المواد مرتبة حسب الأبجدية الروسية.",
+  "Russian letter": "حرف روسي",
+
 };
 export default UI_AR;

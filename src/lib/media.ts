@@ -12,10 +12,21 @@
  * Absolute https:// and already-bundled `/assets/` URLs are left unchanged.
  */
 
-const portraitModules = import.meta.glob(
-  "../assets/portraits/*.{jpg,jpeg,png,webp,JPG,JPEG,PNG,WEBP}",
-  { eager: true, import: "default" },
-) as Record<string, string>;
+/** Portraits from dedicated pack + persons/ imports + root portrait-* files */
+const portraitModules = {
+  ...import.meta.glob(
+    "../assets/portraits/*.{jpg,jpeg,png,webp,JPG,JPEG,PNG,WEBP}",
+    { eager: true, import: "default" },
+  ),
+  ...import.meta.glob(
+    "../assets/persons/*.{jpg,jpeg,png,webp,JPG,JPEG,PNG,WEBP}",
+    { eager: true, import: "default" },
+  ),
+  ...import.meta.glob(
+    "../assets/portrait-*.{jpg,jpeg,png,webp,JPG,JPEG,PNG,WEBP}",
+    { eager: true, import: "default" },
+  ),
+} as Record<string, string>;
 
 const legacyModules = import.meta.glob(
   "../assets/legacy-photos/*.{jpg,jpeg,png,webp,JPG,JPEG,PNG,WEBP}",
