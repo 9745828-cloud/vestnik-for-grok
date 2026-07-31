@@ -53,8 +53,8 @@ export function Footer() {
             <ul className="space-y-2.5 text-sm">
               <li><Link to="/puti" className="hover:text-gold transition-colors">{t("Пути благородного участия", "Paths of noble participation")}</Link></li>
               <li><Link to="/geografiya" className="hover:text-gold transition-colors">{t("География добра", "Geography of good")}</Link></li>
-              <li><Link to="/prichastnost" className="hover:text-gold transition-colors">{t("Искусство быть причастным", "The art of being involved")}</Link></li>
               <li><Link to="/puls" className="hover:text-gold transition-colors">{t("Пульс времени и перемен", "Pulse of time and change")}</Link></li>
+              <li><Link to="/test" className="hover:text-gold transition-colors">{t("Найдите свой путь", "Find your path")}</Link></li>
             </ul>
           </div>
 

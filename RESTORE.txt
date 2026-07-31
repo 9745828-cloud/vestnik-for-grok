@@ -1,13 +1,18 @@
 Intermediate backup 3 of Vestnik Mecenata
-Updated: 2026-07-30 MSK
+Updated: 2026-07-31 MSK
 Source: /Users/dmitry/vestnik-for-grok
+Git: main (9745828-cloud/vestnik-for-grok)
 
 State:
-- Patrons part 3 №1–42 + Edmond de Rothschild
-- Part 4 (Russian Empire) №1–5: Naryshkins, Nosov, Tolmachyov, Ikavits (Tambov)
-- NEWS / Пульс: July 2026 batch (8 items, dates corrected)
-- GEO: Tambov + Krasnaya Sloboda + prior cities
-- Media local for available portraits/legacy; some part-4 media still manual
+- Part 3 №1–42 + Edmond de Rothschild
+- Part 4 (Russian Empire) №1–20
+- PERSONS ~164; full RU/EN/AR/ZH for cards
+- Bio style pass + EN/AR/ZH sync rules in AGENTS
+- Media: local JPEG (public/ + src/assets/)
+- Home stats: names floor/10+, cities = GEO.length + plural
+- SKC easter egg: 10× menu in ~2s, 8s card
+- Section /prichastnost removed (local archive: _local_restore/prichastnost/ on machine only)
+- NEWS / Пульс: July 2026 batch
 
 GitHub: 9745828-cloud/vestnik-for-grok (main)
 
@@ -17,11 +22,7 @@ GitHub: 9745828-cloud/vestnik-for-grok (main)
 2) THIS intermediate backup 3 (current restore point):
    /Users/dmitry/vestnik-for-grok-Промежуточный-бэкап-3
 
-Deleted earlier by user:
-- baseline-after-patrons-1-25
-- Промежуточный-бэкап-2
-
 Restore:
-  rsync -a --delete --exclude node_modules \
+  rsync -a --delete --exclude node_modules --exclude .output --exclude dist \
     "/Users/dmitry/vestnik-for-grok-Промежуточный-бэкап-3/" \
     "/Users/dmitry/vestnik-for-grok/"

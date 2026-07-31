@@ -234,9 +234,9 @@ export const LEVELS: QuizLevel[] = [
     min: 13,
     max: 15,
     title: "入门者",
-    text: "您已经解读了「赞助人准则」。对您来说，慈善不是一种姿态，而是一种服务方式。加入这项事业——参与其中。",
+    text: "您已经解读了「赞助人准则」。对您来说，慈善不是一种姿态，而是一种服务方式。了解参与路径与先驱报的使命。",
     links: [
-      { to: "/prichastnost", label: "参与其中" },
+      { to: "/puti", label: "参与路径" },
       { to: "/mission", label: "先驱报的使命" },
     ],
   },

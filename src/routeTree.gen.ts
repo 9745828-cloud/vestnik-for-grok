@@ -11,7 +11,6 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TestRouteImport } from './routes/test'
 import { Route as PulsRouteImport } from './routes/puls'
-import { Route as PrichastnostRouteImport } from './routes/prichastnost'
 import { Route as NasledieRouteImport } from './routes/nasledie'
 import { Route as MissionRouteImport } from './routes/mission'
 import { Route as LitsaRouteImport } from './routes/litsa'
@@ -33,11 +32,6 @@ const TestRoute = TestRouteImport.update({
 const PulsRoute = PulsRouteImport.update({
   id: '/puls',
   path: '/puls',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrichastnostRoute = PrichastnostRouteImport.update({
-  id: '/prichastnost',
-  path: '/prichastnost',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NasledieRoute = NasledieRouteImport.update({
@@ -110,7 +104,6 @@ export interface FileRoutesByFullPath {
   '/litsa': typeof LitsaRouteWithChildren
   '/mission': typeof MissionRoute
   '/nasledie': typeof NasledieRoute
-  '/prichastnost': typeof PrichastnostRoute
   '/puls': typeof PulsRoute
   '/test': typeof TestRoute
   '/letopis/1861': typeof Letopis1861Route
@@ -127,7 +120,6 @@ export interface FileRoutesByTo {
   '/litsa': typeof LitsaRouteWithChildren
   '/mission': typeof MissionRoute
   '/nasledie': typeof NasledieRoute
-  '/prichastnost': typeof PrichastnostRoute
   '/puls': typeof PulsRoute
   '/test': typeof TestRoute
   '/letopis/1861': typeof Letopis1861Route
@@ -145,7 +137,6 @@ export interface FileRoutesById {
   '/litsa': typeof LitsaRouteWithChildren
   '/mission': typeof MissionRoute
   '/nasledie': typeof NasledieRoute
-  '/prichastnost': typeof PrichastnostRoute
   '/puls': typeof PulsRoute
   '/test': typeof TestRoute
   '/letopis/1861': typeof Letopis1861Route
@@ -164,7 +155,6 @@ export interface FileRouteTypes {
     | '/litsa'
     | '/mission'
     | '/nasledie'
-    | '/prichastnost'
     | '/puls'
     | '/test'
     | '/letopis/1861'
@@ -181,7 +171,6 @@ export interface FileRouteTypes {
     | '/litsa'
     | '/mission'
     | '/nasledie'
-    | '/prichastnost'
     | '/puls'
     | '/test'
     | '/letopis/1861'
@@ -198,7 +187,6 @@ export interface FileRouteTypes {
     | '/litsa'
     | '/mission'
     | '/nasledie'
-    | '/prichastnost'
     | '/puls'
     | '/test'
     | '/letopis/1861'
@@ -216,7 +204,6 @@ export interface RootRouteChildren {
   LitsaRoute: typeof LitsaRouteWithChildren
   MissionRoute: typeof MissionRoute
   NasledieRoute: typeof NasledieRoute
-  PrichastnostRoute: typeof PrichastnostRoute
   PulsRoute: typeof PulsRoute
   TestRoute: typeof TestRoute
   PutiSlugRoute: typeof PutiSlugRoute
@@ -237,13 +224,6 @@ declare module '@tanstack/react-router' {
       path: '/puls'
       fullPath: '/puls'
       preLoaderRoute: typeof PulsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/prichastnost': {
-      id: '/prichastnost'
-      path: '/prichastnost'
-      fullPath: '/prichastnost'
-      preLoaderRoute: typeof PrichastnostRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/nasledie': {
@@ -363,7 +343,6 @@ const rootRouteChildren: RootRouteChildren = {
   LitsaRoute: LitsaRouteWithChildren,
   MissionRoute: MissionRoute,
   NasledieRoute: NasledieRoute,
-  PrichastnostRoute: PrichastnostRoute,
   PulsRoute: PulsRoute,
   TestRoute: TestRoute,
   PutiSlugRoute: PutiSlugRoute,

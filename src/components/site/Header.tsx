@@ -1,8 +1,13 @@
 import { Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useCallback, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { Menu, X } from "lucide-react";
 import logo from "@/assets/logo-vm.png";
 import { useLang, useSetLang, useLangLocked, useT, type Lang } from "@/i18n/lang";
+import { SkcEasterEgg } from "./SkcEasterEgg";
+
+/** 10 нажатий кнопки «Меню» в окне ~2 с → пасхалка SKC (1,5 с на практике почти недостижимы) */
+const EGG_CLICKS = 10;
+const EGG_WINDOW_MS = 2000;
 
 const NAV_LABELS: Record<string, { ru: string; en: string }> = {
   "/": { ru: "Главная", en: "Home" },
@@ -15,7 +20,6 @@ const NAV_LABELS: Record<string, { ru: string; en: string }> = {
   "/geografiya": { ru: "География добра", en: "Geography" },
   "/puls": { ru: "Пульс времени", en: "Pulse" },
   "/test": { ru: "Найдите свой путь", en: "Find your path" },
-  "/prichastnost": { ru: "Стать причастным", en: "Get involved" },
   "/kod": { ru: "Код мецената", en: "Patron's code" },
 };
 
@@ -30,12 +34,15 @@ const NAV = [
   { to: "/geografiya" },
   { to: "/puls" },
   { to: "/test" },
-  { to: "/prichastnost" },
   { to: "/kod" },
 ] as const;
 
 export function Header() {
   const [open, setOpen] = useState(false);
+  const [eggOpen, setEggOpen] = useState(false);
+  const menuClicksRef = useRef<number[]>([]);
+  /** блокирует onClick сразу после срабатывания яйца (state ещё не успел обновиться) */
+  const suppressMenuClickRef = useRef(false);
   const lang = useLang();
   const setLang = useSetLang();
   const langLocked = useLangLocked();
@@ -44,8 +51,43 @@ export function Header() {
   const subtitle = t("Летопись благородных дел", "Chronicle of noble deeds");
   const brand = t("Вестник мецената и филантропа", "Patron & Philanthropist Herald");
   const menuLabel = t("Меню", "Menu");
+
+  const closeEgg = useCallback(() => setEggOpen(false), []);
+
+  /** pointerdown: быстрее и надёжнее серии кликов, чем click */
+  const onMenuPointerDown = (e: ReactPointerEvent<HTMLButtonElement>) => {
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+
+    const now = performance.now();
+    const times = menuClicksRef.current;
+    times.push(now);
+    while (times.length > 0 && now - times[0] > EGG_WINDOW_MS) {
+      times.shift();
+    }
+    while (times.length > EGG_CLICKS) {
+      times.shift();
+    }
+
+    if (times.length >= EGG_CLICKS && now - times[0] <= EGG_WINDOW_MS) {
+      menuClicksRef.current = [];
+      suppressMenuClickRef.current = true;
+      e.preventDefault();
+      setOpen(false);
+      setEggOpen(true);
+    }
+  };
+
+  const onMenuClick = () => {
+    if (suppressMenuClickRef.current || eggOpen) {
+      suppressMenuClickRef.current = false;
+      return;
+    }
+    setOpen((v) => !v);
+  };
+
   return (
     <header className="sticky top-0 z-40 backdrop-blur-xl bg-[oklch(0.985_0.008_90/0.78)] border-b border-gold/30 shadow-[0_2px_24px_-12px_oklch(0.36_0.12_25/0.25)]">
+      <SkcEasterEgg open={eggOpen} onClose={closeEgg} />
       {/* тонкая золотая линия сверху */}
       <div className="h-[2px] w-full bg-gradient-to-r from-transparent via-gold to-transparent opacity-70" />
       <div className="container mx-auto px-4 lg:px-8 flex items-center justify-between gap-6 lg:gap-12 h-20 lg:h-24">
@@ -65,9 +107,11 @@ export function Header() {
         <div className="flex items-center gap-2 shrink-0">
           {!langLocked && <LanguageSwitcher lang={lang} setLang={setLang} compact />}
           <button
+            type="button"
             aria-label={menuLabel}
-            onClick={() => setOpen((v) => !v)}
-            className="flex items-center gap-2 px-3 py-2 font-display text-sm tracking-wide text-bordo rounded-md border border-gold/40 bg-cream/60 shadow-[inset_0_1px_0_oklch(1_0_0/0.7),0_2px_6px_-2px_oklch(0.36_0.12_25/0.25)]"
+            onPointerDown={onMenuPointerDown}
+            onClick={onMenuClick}
+            className="flex items-center gap-2 px-3 py-2 font-display text-sm tracking-wide text-bordo rounded-md border border-gold/40 bg-cream/60 shadow-[inset_0_1px_0_oklch(1_0_0/0.7),0_2px_6px_-2px_oklch(0.36_0.12_25/0.25)] touch-manipulation select-none"
           >
             {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             <span className="hidden sm:inline">{menuLabel}</span>

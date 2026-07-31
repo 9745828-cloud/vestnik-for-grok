@@ -220,9 +220,9 @@ export const LEVELS: QuizLevel[] = [
     min: 13,
     max: 15,
     title: "Initiate",
-    text: "You have decoded the 'patron code.' For you, philanthropy is not a gesture but a way of service. Join the cause — become involved.",
+    text: "You have decoded the 'patron code.' For you, philanthropy is not a gesture but a way of service. Explore paths of involvement and the Herald's mission.",
     links: [
-      { to: "/prichastnost", label: "Become involved" },
+      { to: "/puti", label: "Paths of involvement" },
       { to: "/mission", label: "Mission of the Herald" },
     ],
   },

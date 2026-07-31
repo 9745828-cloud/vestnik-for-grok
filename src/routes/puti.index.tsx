@@ -75,11 +75,11 @@ function Puti() {
           <div className="mt-16 bg-bordo text-cream p-10 md:p-14 rounded-sm grid md:grid-cols-[1fr_auto] items-center gap-8">
             <div>
               <div className="text-[11px] tracking-[0.3em] uppercase text-gold">{t("Готовы сделать первый шаг?", "Ready to take the first step?")}</div>
-              <h3 className="mt-3 font-display text-3xl md:text-4xl">{t("Расскажите нам о своём замысле", "Tell us about your idea")}</h3>
-              <p className="mt-3 text-cream/80 max-w-xl">{t("Редакция «Вестника» поможет найти проверенный фонд, связать с проектом или рассказать вашу историю — без шума и формальностей.", "The Herald's editors will help you find a trusted foundation, connect with a project or share your story — without fuss or red tape.")}</p>
+              <h3 className="mt-3 font-display text-3xl md:text-4xl">{t("Найдите свой путь в меценатстве", "Find your path in patronage")}</h3>
+              <p className="mt-3 text-cream/80 max-w-xl">{t("Пройдите короткий тест — он подскажет, какие формы участия ближе именно вам.", "Take a short test — it will suggest which forms of involvement suit you best.")}</p>
             </div>
-            <Link to="/prichastnost" className="inline-flex items-center px-7 py-3.5 bg-gold text-ink text-xs uppercase tracking-[0.22em] font-medium hover:bg-[oklch(0.79_0.09_82)] transition-colors whitespace-nowrap">
-              {t("Сделать первый шаг", "Take the first step")}
+            <Link to="/test" className="inline-flex items-center px-7 py-3.5 bg-gold text-ink text-xs uppercase tracking-[0.22em] font-medium hover:bg-[oklch(0.79_0.09_82)] transition-colors whitespace-nowrap">
+              {t("Пройти тест", "Take the test")}
             </Link>
           </div>
         </div>

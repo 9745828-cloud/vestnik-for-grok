@@ -3,8 +3,8 @@ import { useState } from "react";
 import { SiteLayout } from "@/components/site/SiteLayout";
 import { EraHero } from "@/components/site/EraHero";
 import { SectionHeading } from "@/components/site/SectionHeading";
-import { useChronicle, usePersons } from "@/data/content.localized";
-import { useT } from "@/i18n/lang";
+import { useChronicle, useGeo, usePersons } from "@/data/content.localized";
+import { useT, usePlural, PLURAL_CITY } from "@/i18n/lang";
 import { ArrowRight, BookOpen, Map, Users, Star, Play } from "lucide-react";
 import {
   Dialog,
@@ -54,8 +54,10 @@ function Stat({ value, label }: { value: string; label: string }) {
 
 function Home() {
   const t = useT();
+  const plural = usePlural();
   const CHRONICLE = useChronicle();
   const PERSONS = usePersons();
+  const GEO = useGeo();
   const HOME_YEARS = [-40, 1755, 1856, 1861, 1910, 2025];
   const recent = HOME_YEARS
     .map((y) => CHRONICLE.find((c) => c.year === y))
@@ -74,6 +76,12 @@ function Home() {
   const [activeVideo, setActiveVideo] = useState<string | null>(null);
   const activePerson = livingFaces.find((lf) => lf.video === activeVideo)?.person;
 
+  // «Имён в летописи» = число карточек «Лица», округление вниз до 10 → «160+»
+  const namesInChronicle = `${Math.floor(PERSONS.length / 10) * 10}+`;
+  // «Города на карте» — точное число точек GEO + склонение, как в /geografiya
+  const cityCount = GEO.length;
+  const cityLabel = plural(cityCount, PLURAL_CITY);
+
   return (
     <SiteLayout>
       <EraHero />
@@ -81,8 +89,8 @@ function Home() {
       {/* Счётчики */}
       <section id="after-hero" className="paper-bg border-b border-border/60">
         <div className="container mx-auto px-4 lg:px-8 py-16 grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-6">
-          <Stat value="130+" label={t("Имён в летописи", "Names in the chronicle")} />
-          <Stat value="80" label={t("Городов на карте", "Cities on the map")} />
+          <Stat value={namesInChronicle} label={t("Имён в летописи", "Names in the chronicle")} />
+          <Stat value={String(cityCount)} label={cityLabel} />
           <Stat value="V" label={t("Эпох щедрости", "Eras of generosity")} />
         </div>
       </section>
@@ -282,11 +290,11 @@ function Home() {
               <p className="mt-2 text-sm text-muted-foreground">{t("Карта городов России и стран СНГ, где жили и творили меценаты.", "A map of cities across Russia and the CIS where patrons lived and worked.")}</p>
               <div className="mt-5 text-xs uppercase tracking-[0.2em] text-gold inline-flex items-center gap-2 group-hover:gap-3 transition-all">{t("Смотреть карту", "Open the map")} <ArrowRight className="h-3.5 w-3.5" /></div>
             </Link>
-            <Link to="/prichastnost" className="group bg-bordo text-cream p-8 rounded-sm hover:bg-[oklch(0.30_0.10_25)] transition-all">
+            <Link to="/puti" className="group bg-bordo text-cream p-8 rounded-sm hover:bg-[oklch(0.30_0.10_25)] transition-all">
               <Users className="h-7 w-7 text-gold" />
-              <div className="mt-5 font-display text-2xl">{t("Стать причастным", "Get involved")}</div>
-              <p className="mt-2 text-sm text-cream/80">{t("Расскажите свою историю, поддержите проект, станьте автором.", "Share your story, support the project, become an author.")}</p>
-              <div className="mt-5 text-xs uppercase tracking-[0.2em] text-gold inline-flex items-center gap-2 group-hover:gap-3 transition-all">{t("Связаться", "Contact us")} <ArrowRight className="h-3.5 w-3.5" /></div>
+              <div className="mt-5 font-display text-2xl">{t("Пути участия", "Paths of involvement")}</div>
+              <p className="mt-2 text-sm text-cream/80">{t("Форматы щедрости — от личной помощи до институционального меценатства.", "Forms of generosity — from personal help to institutional patronage.")}</p>
+              <div className="mt-5 text-xs uppercase tracking-[0.2em] text-gold inline-flex items-center gap-2 group-hover:gap-3 transition-all">{t("Изучить", "Explore")} <ArrowRight className="h-3.5 w-3.5" /></div>
             </Link>
           </div>
         </div>

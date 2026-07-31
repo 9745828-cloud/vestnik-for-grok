@@ -361,8 +361,8 @@ function PathDetail() {
               <div className="text-[11px] tracking-[0.3em] uppercase text-gold">{t("Готовы попробовать?", "Ready to try?")}</div>
               <h3 className="mt-3 font-display text-3xl">{t("Сделать первый шаг", "Take the first step")}</h3>
             </div>
-            <Link to="/prichastnost" className="inline-flex items-center px-7 py-3.5 bg-gold text-ink text-xs uppercase tracking-[0.22em] font-medium hover:bg-[oklch(0.79_0.09_82)] transition-colors whitespace-nowrap">
-              {t("Связаться с редакцией", "Contact editors")}
+            <Link to="/test" className="inline-flex items-center px-7 py-3.5 bg-gold text-ink text-xs uppercase tracking-[0.22em] font-medium hover:bg-[oklch(0.79_0.09_82)] transition-colors whitespace-nowrap">
+              {t("Пройти тест", "Take the test")}
             </Link>
           </div>
         </div>
