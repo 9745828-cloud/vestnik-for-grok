@@ -29,6 +29,7 @@ const LIVING_FACES = [
   { slug: "alfred-nobel", video: "/videos/nobel.mp4" },
   { slug: "galimzyanov-asgat", video: "/videos/galimzyanov.mp4" },
   { slug: "temirkanov", video: "/videos/temirkanov.mp4" },
+  { slug: "fyodorov", video: "/videos/fyodorov.mp4" },
 ];
 
 export const Route = createFileRoute("/")({

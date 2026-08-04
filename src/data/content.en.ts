@@ -6498,6 +6498,13 @@ export type NewsItem = {
 
 export const NEWS: NewsItem[] = [
   {
+    date: "2026-08-01",
+    title: "“Keepers”: a portrait of Maria Tenisheva in Kommersant Weekend",
+    text: "On 1 August 2026, Kommersant Weekend published “Keepers. Maria Tenisheva” — a feature on the Silver Age princess, patron, collector and enamellist. Drawing on her memoir “Impressions of My Life,” the piece follows her path from a difficult childhood to supporting artists, Talashkino and collecting: Tenisheva belongs with Vrubel and other masters of the era, and her name remains central to the history of Russian artistic patronage.",
+    source: "Kommersant Weekend / My Weekend",
+    url: "https://www.myweekend.ru/doc/8847752",
+  },
+  {
     date: "2026-07-29",
     title: "A new model of Russian patronage discussed in Yekaterinburg",
     text: "On 29 July 2026, Yekaterinburg hosted the plenary session “The Ural Code of Patronage: From Tradition to Innovation,” bringing together business, charitable foundations, government and cultural institutions. The focus was a shift from one-off charity to long-term social investment in culture, education, urban environments and regional development. Practices presented included projects of the Russian Copper Company and the Sinara and SKB Kontur foundations. Especially notable is the Yekaterinburg Assembly: over 15 years the project has raised more than 1 billion rubles for culture, medicine, education, sport and social support.",
