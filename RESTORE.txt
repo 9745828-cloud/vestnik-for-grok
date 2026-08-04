@@ -1,7 +1,7 @@
 Intermediate backup 3 of Vestnik Mecenata
-Updated: 2026-07-31 MSK
+Updated: 2026-08-04 MSK
 Source: /Users/dmitry/vestnik-for-grok
-Git: main @ 026213a (9745828-cloud/vestnik-for-grok)
+Git: main @ 63311fd (9745828-cloud/vestnik-for-grok)
 
 State:
 - Part 3 №1–42 + Edmond de Rothschild
@@ -12,7 +12,8 @@ State:
 - Home stats: names floor/10+, cities = GEO.length + plural
 - SKC easter egg: 10× menu in ~2s, 8s card
 - Section /prichastnost removed (local archive: _local_restore/prichastnost/ on machine only)
-- NEWS / Пульс: July 2026 batch
+- NEWS / Пульс: July 2026 batch + Tenisheva «Хранители» (2026-08-01)
+- Living faces video: Святослав Фёдоров (slug fyodorov)
 
 GitHub: 9745828-cloud/vestnik-for-grok (main)
 
